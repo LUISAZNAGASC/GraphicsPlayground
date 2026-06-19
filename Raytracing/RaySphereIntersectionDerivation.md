@@ -190,11 +190,15 @@ ID = (-LC ± (LC^2.0 - 4.0 * QC * CC)^0.5) / (2.0 * QC);
 
 # SOURCE CODE
 ```
+const float UnfoundIntersection = -1.0;
+const float MinimumIntersection = 0.001;
+const float MaximumIntersection = 1000.0;
+
 struct source { vec3 position; vec3 direction; };
 
 struct sphere { vec3 position; float radius; };
 
-bool checkSphereIntersection(in source sampleSource, in sphere sampleSphere, out float sphereIntersection)
+float getSphereIntersection(in source sampleSource, in sphere sampleSphere)
 {
     vec3 relativePosition = sampleSource.position - sampleSphere.position;
     
@@ -203,20 +207,19 @@ bool checkSphereIntersection(in source sampleSource, in sphere sampleSphere, out
     float constantCoefficient = dot(relativePosition, relativePosition) - sampleSphere.radius * sampleSphere.radius;
     float quadraticDiscriminant = linearCoefficient * linearCoefficient - 4.0 * quadraticCoefficient * constantCoefficient;
     
-    if (quadraticDiscriminant < 0.0) { sphereIntersection = 0.0; return false; }
+    if (quadraticDiscriminant < 0.0) return UnfoundIntersection;
     
     float discriminantRadical = sqrt(quadraticDiscriminant);
+    
     float negativeIntersection = (-linearCoefficient - discriminantRadical) / (2.0 * quadraticCoefficient);
     float positiveIntersection = (-linearCoefficient + discriminantRadical) / (2.0 * quadraticCoefficient);
     float minimumIntersection = min(negativeIntersection, positiveIntersection);
     float maximumIntersection = max(negativeIntersection, positiveIntersection);
     
-    if (minimumIntersection > 0.0) { sphereIntersection = minimumIntersection; return true; }
-    if (maximumIntersection > 0.0) { sphereIntersection = maximumIntersection; return true; }
+    if (minimumIntersection > MinimumIntersection && minimumIntersection < MaximumIntersection) return minimumIntersection;
+    if (maximumIntersection > MinimumIntersection && maximumIntersection < MaximumIntersection) return maximumIntersection;
     
-    sphereIntersection = 0.0;
-    
-    return false;
+    return UnfoundIntersection;
 }
 ```
 ====================
