@@ -191,34 +191,31 @@ ID = (-LC ± (LC^2.0 - 4.0 * QC * CC)^0.5) / (2.0 * QC);
 # SOURCE CODE
 ```
 const float UnfoundIntersection = -1.0;
-const float MinimumIntersection = 0.001;
-const float MaximumIntersection = 1000.0;
 
 struct source { vec3 position; vec3 direction; };
-
 struct sphere { vec3 position; float radius; };
 
-float getSphereIntersection(in source sampleSource, in sphere sampleSphere)
+float getSphereIntersection(in source sampleSource, in sphere sampleSphere, in float minimumIntersection, in float maximumIntersection)
 {
     vec3 relativePosition = sampleSource.position - sampleSphere.position;
-    
+
     float quadraticCoefficient = dot(sampleSource.direction, sampleSource.direction);
     float linearCoefficient = 2.0 * dot(relativePosition, sampleSource.direction);
     float constantCoefficient = dot(relativePosition, relativePosition) - sampleSphere.radius * sampleSphere.radius;
     float quadraticDiscriminant = linearCoefficient * linearCoefficient - 4.0 * quadraticCoefficient * constantCoefficient;
-    
+
     if (quadraticDiscriminant < 0.0) return UnfoundIntersection;
-    
+
     float discriminantRadical = sqrt(quadraticDiscriminant);
-    
+
     float negativeIntersection = (-linearCoefficient - discriminantRadical) / (2.0 * quadraticCoefficient);
     float positiveIntersection = (-linearCoefficient + discriminantRadical) / (2.0 * quadraticCoefficient);
-    float minimumIntersection = min(negativeIntersection, positiveIntersection);
-    float maximumIntersection = max(negativeIntersection, positiveIntersection);
-    
-    if (minimumIntersection > MinimumIntersection && minimumIntersection < MaximumIntersection) return minimumIntersection;
-    if (maximumIntersection > MinimumIntersection && maximumIntersection < MaximumIntersection) return maximumIntersection;
-    
+    float incomingIntersection = min(negativeIntersection, positiveIntersection);
+    float outgoingIntersection = max(negativeIntersection, positiveIntersection);
+
+    if (incomingIntersection > minimumIntersection && incomingIntersection < maximumIntersection) return incomingIntersection;
+    if (outgoingIntersection > minimumIntersection && outgoingIntersection < maximumIntersection) return outgoingIntersection;
+
     return UnfoundIntersection;
 }
 ```
