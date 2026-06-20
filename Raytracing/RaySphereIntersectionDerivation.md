@@ -15,7 +15,7 @@
 # 01 - RAY DEFINITION
 ```
 WP.xyz = RO.xyz + RD.xyz * ID;
-``````
+``` ```
 WP.x = RO.x + RD.x * ID;
 WP.y = RO.y + RD.y * ID;
 WP.z = RO.z + RD.z * ID;
