@@ -1,4 +1,4 @@
-# 00 - VARIABLE DEFINITIONS
+# 0 - VARIABLE DEFINITIONS
 ```
 - WP : WORLD POSITION
 - RO : RAY ORIGIN
@@ -12,7 +12,7 @@
 - CC : CONSTANT COEFFICIENT
 - NC : NUMERIC CONSTANT
 ```
-# 01 - RAY DEFINITION
+# 1 - RAY DEFINITION
 Express the intersection point as a position along the ray with a direction.
 ```
 WP.xyz = RO.xyz + RD.xyz * ID;
@@ -23,12 +23,12 @@ WP.x = RO.x + RD.x * ID;
 WP.y = RO.y + RD.y * ID;
 WP.z = RO.z + RD.z * ID;
 ```
-# 02 - SPHERE DEFINITION
+# 2 - SPHERE DEFINITION
 Replace the ray coordinates into the sphere equation.
 ```
 (WP.x - SP.x)^2.0 + (WP.y - SP.y)^2.0 + (WP.z - SP.z)^2.0 = (SR)^2.0;
 ```
-# 03 - SPHERE SUBSTITUTION
+# 3 - SPHERE SUBSTITUTION
 Substitute the ray coordinates into the sphere equation.
 ```
 WP.x = RO.x + RD.x * ID;
@@ -39,7 +39,7 @@ Rewrite the sphere equation using only ray parameters.
 ```
 (RO.x + RD.x * ID - SP.x)^2.0 + (RO.y + RD.y * ID - SP.y)^2.0 + (RO.z + RD.z * ID - SP.z)^2.0 = (SR)^2.0;
 ```
-# 04 - RELATIVE VECTOR DEFINITION
+# 4 - RELATIVE VECTOR DEFINITION
 Define the offset between the ray origin and sphere center.
 ```
 RP.xyz = RO.xyz - SP.xyz;
@@ -54,7 +54,7 @@ Rewrite the equation in terms of the relative position vector.
 ```
 (RP.x + RD.x * ID)^2.0 + (RP.y + RD.y * ID)^2.0 + (RP.z + RD.z * ID)^2.0 = (SR)^2.0;
 ```
-# 05 - EXPANSION OF THE QUADRATIC FORM
+# 5 - EXPANSION OF THE QUADRATIC FORM
 Expand each squared term.
 ```
 (RP.x)^2.0 + (RD.x * ID)^2.0 + 2.0 * RP.x * RD.x * ID + (RP.y)^2.0 + (RD.y * ID)^2.0 + 2.0 * RP.y * RD.y * ID + (RP.z)^2.0 + (RD.z * ID)^2.0 + 2.0 * RP.z * RD.z * ID = (SR)^2.0;
@@ -67,21 +67,21 @@ Rewrite the expression using vector dot products.
 ```
 (RD.xyz · RD.xyz) * (ID)^2.0 + 2.0 * (RP.xyz · RD.xyz) * ID + (RP.xyz · RP.xyz) - (SR)^2.0 = 0.0;
 ```
-# 06 - COEFFICIENT DEFINITIONS
+# 6 - COEFFICIENT DEFINITIONS
 Identify the quadratic, linear and constant coefficients.
 ```
 QC = (RD.xyz · RD.xyz);
 LC = 2.0 * (RP.xyz · RD.xyz);
 CC = (RP.xyz · RP.xyz) - (SR)^2.0;
 ```
-# 07 - QUADRATIC EQUATION DEFINITION
+# 7 - QUADRATIC EQUATION DEFINITION
 Rewrite the intersection condition using the defined coefficients.
 ```
 QC * (ID)^2.0 + LC * ID + CC = 0.0;
 (QC * (ID)^2.0 + LC * ID + CC) / QC = 0.0;
 (ID)^2.0 + (LC / QC) * ID + CC / QC = 0.0;
 ```
-# 08 - COMPLETING THE SQUARE
+# 8 - COMPLETING THE SQUARE
 Start from the general perfect-square identitity.
 ```
 (ID + NC)^2.0 = (ID)^2.0 + 2.0 * NC * ID + (NC)^2.0;
@@ -98,7 +98,7 @@ Transform the quadratic equation into perfect-square form.
 (ID)^2.0 + 2.0 * NC * ID = -CC / QC;
 (ID + NC)^2.0 = -CC / QC + (NC)^2.0;
 ```
-# 09 - FINAL SOLUTION
+# 9 - FINAL SOLUTION
 Take the square root of both sides.
 ```
 ID + NC = -(-CC / QC + (NC)^2.0)^0.5;
