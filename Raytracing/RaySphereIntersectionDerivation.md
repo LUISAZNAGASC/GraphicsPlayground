@@ -44,7 +44,7 @@ Define the offset between the ray origin and sphere center.
 ```
 RP.xyz = RO.xyz - SP.xyz;
 ```
-Expand the relative vector into its indicvidual components.
+Expand the relative vector into its individual components.
 ```
 RP.x = RO.x - SP.x;
 RP.y = RO.y - SP.y;
