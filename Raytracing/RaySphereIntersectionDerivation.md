@@ -50,6 +50,7 @@ RP.x = RO.x - SP.x;
 RP.y = RO.y - SP.y;
 RP.z = RO.z - SP.z;
 ```
+Rewrite the equation in terms of the relative position vector.
 ```
 (RP.x + RD.x * ID)^2.0 + (RP.y + RD.y * ID)^2.0 + (RP.z + RD.z * ID)^2.0 = (SR)^2.0;
 ```
@@ -115,8 +116,8 @@ ID = -(LC / (2.0 * QC)) + ((LC / (2.0 * QC))^2.0 - CC / QC)^0.5;
 ```
 Simplify to the standard quadratic formula.
 ```
-ID = (-LC - (LC^2.0 - 4.0 * QC * CC)^0.5) / (2.0 * QC);
-ID = (-LC + (LC^2.0 - 4.0 * QC * CC)^0.5) / (2.0 * QC);
+ID = (-LC - (LC^2.0 - 4.0 * QC * CC)^0.5) / (2.0 * QC); // Incoming intersection
+ID = (-LC + (LC^2.0 - 4.0 * QC * CC)^0.5) / (2.0 * QC); // Outgoing intersection
 ```
 # SOURCE CODE
 ```
