@@ -2,7 +2,7 @@
 ====================
 
 # 00 - VARIABLE DEFINITIONS
-
+```
 - WP : WORLD POSITION
 - RO : RAY ORIGIN
 - RD : RAY DIRECTION
@@ -14,7 +14,7 @@
 - LC : LINEAR COEFFICIENT
 - CC : CONSTANT COEFFICIENT
 - NC : NUMERIC CONSTANT
-
+```
 ====================
 ====================
 
