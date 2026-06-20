@@ -13,17 +13,13 @@
 - NC : NUMERIC CONSTANT
 ```
 # 01 - RAY DEFINITION
-
 ```
 WP.xyz = RO.xyz + RD.xyz * ID;
-```
-
-```
+``````
 WP.x = RO.x + RD.x * ID;
 WP.y = RO.y + RD.y * ID;
 WP.z = RO.z + RD.z * ID;
 ````
-
 # 02 - SPHERE DEFINITION
 
 (WP.x - SP.x)^2.0 + (WP.y - SP.y)^2.0 + (WP.z - SP.z)^2.0 = (SR)^2.0;
