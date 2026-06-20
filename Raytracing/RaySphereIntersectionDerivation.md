@@ -59,9 +59,7 @@ RP.z = RO.z - SP.z;
 # 06 - COEFFICIENT DEFINITIONS
 ```
 QC = (RD.xyz · RD.xyz);
-```
 LC = 2.0 * (RP.xyz · RD.xyz);
-```
 CC = (RP.xyz · RP.xyz) - (SR)^2.0;
 ```
 # 07 - QUADRATIC EQUATION DEFINITION
