@@ -1,22 +1,7 @@
 ====================
 ====================
 
-# STEP 00 - VARIABLE DEFINITIONS
-
-## STEP 01 - RAY DEFINITION
-
-- WP : WORLD POSITION
-- RO : RAY ORIGIN
-- RD : RAY DIRECTION
-- ID : INTERSECTION DISTANCE
-
-## STEP 02 - SPHERE DEFINITION
-
-- WP : WORLD POSITION
-- SP : SPHERE POSITION
-- SR : SPHERE RADIUS
-
-## STEP 03 - SPHERE SUBSTITUTION
+# 00 - VARIABLE DEFINITIONS
 
 - WP : WORLD POSITION
 - RO : RAY ORIGIN
@@ -24,58 +9,16 @@
 - ID : INTERSECTION DISTANCE
 - SP : SPHERE POSITION
 - SR : SPHERE RADIUS
-
-## STEP 04 - RELATIVE VECTOR DEFINITION
-
 - RP : RELATIVE POSITION
-- RO : RAY ORIGIN
-- SP : SPHERE POSITION
-- RD : RAY DIRECTION
-- ID : INTERSECTION DISTANCE
-- SR : SPHERE RADIUS
-
-## STEP 05 - EXPANSION OF THE QUADRATIC FORM
-
-- RP : RELATIVE POSITION
-- RD : RAY DIRECTION
-- ID : INTERSECTION DISTANCE
-- SR : SPHERE RADIUS
-
-## STEP 06 - COEFFICIENT DEFINITIONS
-
 - QC : QUADRATIC COEFFICIENT
 - LC : LINEAR COEFFICIENT
 - CC : CONSTANT COEFFICIENT
-- RP : RELATIVE POSITION
-- RD : RAY DIRECTION
-- SR : SPHERE RADIUS
-
-## STEP 07 - QUADRATIC EQUATION DEFINITION
-
-- QC : QUADRATIC COEFFICIENT
-- LC : LINEAR COEFFICIENT
-- CC : CONSTANT COEFFICIENT
-- ID : INTERSECTION DISTANCE
-
-## STEP 08 - COMPLETING THE SQUARE
-
-- ID : INTERSECTION DISTANCE
 - NC : NUMERIC CONSTANT
-- LC : LINEAR COEFFICIENT
-- QC : QUADRATIC COEFFICIENT
-
-## STEP 09 - FINAL SOLUTION
-
-- ID : INTERSECTION DISTANCE
-- NC : NUMERIC CONSTANT
-- CC : CONSTANT COEFFICIENT
-- QC : QUADRATIC COEFFICIENT
-- LC : LINEAR COEFFICIENT
 
 ====================
 ====================
 
-# STEP 01 - RAY DEFINITION
+# 01 - RAY DEFINITION
 
 WP.xyz = RO.xyz + RD.xyz * ID;
 
@@ -86,14 +29,14 @@ WP.z = RO.z + RD.z * ID;
 ====================
 ====================
 
-# STEP 02 - SPHERE DEFINITION
+# 02 - SPHERE DEFINITION
 
 (WP.x - SP.x)^2.0 + (WP.y - SP.y)^2.0 + (WP.z - SP.z)^2.0 = (SR)^2.0;
 
 ====================
 ====================
 
-# STEP 03 - SPHERE SUBSTITUTION
+# 03 - SPHERE SUBSTITUTION
 
 WP.x = RO.x + RD.x * ID;
 WP.y = RO.y + RD.y * ID;
@@ -104,7 +47,7 @@ WP.z = RO.z + RD.z * ID;
 ====================
 ====================
 
-# STEP 04 - RELATIVE VECTOR DEFINITION
+# 04 - RELATIVE VECTOR DEFINITION
 
 RP.xyz = RO.xyz - SP.xyz;
 
@@ -117,7 +60,7 @@ RP.z = RO.z - SP.z;
 ====================
 ====================
 
-# STEP 05 - EXPANSION OF THE QUADRATIC FORM
+# 05 - EXPANSION OF THE QUADRATIC FORM
 
 (RP.x)^2.0 + (RD.x * ID)^2.0 + 2.0 * RP.x * RD.x * ID + (RP.y)^2.0 + (RD.y * ID)^2.0 + 2.0 * RP.y * RD.y * ID + (RP.z)^2.0 + (RD.z * ID)^2.0 + 2.0 * RP.z * RD.z * ID = (SR)^2.0;
 
@@ -128,7 +71,7 @@ RP.z = RO.z - SP.z;
 ====================
 ====================
 
-# STEP 06 - COEFFICIENT DEFINITIONS
+# 06 - COEFFICIENT DEFINITIONS
 
 QC = (RD.xyz · RD.xyz);
 
@@ -139,7 +82,7 @@ CC = (RP.xyz · RP.xyz) - (SR)^2.0;
 ====================
 ====================
 
-# STEP 07 - QUADRATIC EQUATION DEFINITION
+# 07 - QUADRATIC EQUATION DEFINITION
 
 QC * (ID)^2.0 + LC * ID + CC = 0.0;
 
@@ -150,7 +93,7 @@ QC * (ID)^2.0 + LC * ID + CC = 0.0;
 ====================
 ====================
 
-# STEP 08 - COMPLETING THE SQUARE
+# 08 - COMPLETING THE SQUARE
 
 (ID + NC)^2.0 = (ID)^2.0 + 2.0 * NC * ID + (NC)^2.0;
 
@@ -169,21 +112,23 @@ NC = LC / (2.0 * QC);
 ====================
 ====================
 
-# STEP 09 - FINAL SOLUTION
-
-ID + NC = +(-CC / QC + (NC)^2.0)^0.5;
+# 09 - FINAL SOLUTION
 
 ID + NC = -(-CC / QC + (NC)^2.0)^0.5;
 
-ID = -NC + (-CC / QC + (NC)^2.0)^0.5;
+ID + NC = +(-CC / QC + (NC)^2.0)^0.5;
 
 ID = -NC - (-CC / QC + (NC)^2.0)^0.5;
 
-ID = -(LC / (2.0 * QC)) + ((LC / (2.0 * QC))^2.0 - CC / QC)^0.5;
+ID = -NC + (-CC / QC + (NC)^2.0)^0.5;
 
 ID = -(LC / (2.0 * QC)) - ((LC / (2.0 * QC))^2.0 - CC / QC)^0.5;
 
-ID = (-LC ± (LC^2.0 - 4.0 * QC * CC)^0.5) / (2.0 * QC);
+ID = -(LC / (2.0 * QC)) + ((LC / (2.0 * QC))^2.0 - CC / QC)^0.5;
+
+ID = (-LC - (LC^2.0 - 4.0 * QC * CC)^0.5) / (2.0 * QC);
+
+ID = (-LC + (LC^2.0 - 4.0 * QC * CC)^0.5) / (2.0 * QC);
 
 ====================
 ====================
