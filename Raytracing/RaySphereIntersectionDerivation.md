@@ -23,6 +23,8 @@ WP = RO + RD * ID;
 # 3 - SPHERE SUBSTITUTION
 ```
 WP = RO + RD * ID;
+```
+```
 (RO + RD * ID - SP) · (RO + RD * ID - SP) = (SR)^2.0;
 ```
 # 4 - RELATIVE VECTOR DEFINITION
