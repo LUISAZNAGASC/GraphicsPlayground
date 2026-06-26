@@ -91,7 +91,7 @@ const float UnfoundIntersection = -1.0;
 struct source { vec3 position; vec3 direction; };
 struct sphere { vec3 position; float radius; };
 
-float getSphereIntersection(in source sampleSource, in sphere sampleSphere, in float minimumIntersection, in float maximumIntersection)
+float getSphereIntersection(const in source sampleSource, const in sphere sampleSphere, const in float minimumIntersection, const in float maximumIntersection)
 {
     vec3 relativePosition = sampleSource.position - sampleSphere.position;
 
@@ -113,5 +113,61 @@ float getSphereIntersection(in source sampleSource, in sphere sampleSphere, in f
     if (outgoingIntersection > minimumIntersection && outgoingIntersection < maximumIntersection) return outgoingIntersection;
 
     return UnfoundIntersection;
+}
+
+bool checkSphereIntersection(const in source sampleSource, const in sphere sampleSphere, out float sphereIntersection)
+{
+    const float MinimumIntersection = 0.001;
+    const float MaximumIntersection = 1000.0;
+    
+    sphereIntersection = getSphereIntersection(sampleSource, sampleSphere, MinimumIntersection, MaximumIntersection);
+    
+    return sphereIntersection >= MinimumIntersection && sphereIntersection <= MaximumIntersection;
+}
+
+void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
+{
+    fragmentColor = vec4(0.0, 0.0, 0.0, 1.0);
+    
+    const vec3 referencePosition = vec3(0.0, 0.0, 0.0);
+   
+    float orbitalLongitude = 45.0 + 45.0 * iTime;
+    float orbitalLatitude = 45.0;
+    float orbitalAltitude = 500.0;
+    vec3 orbitalCoordinates = vec3(radians(orbitalLongitude), radians(orbitalLatitude), orbitalAltitude);
+    vec3 orbitalDisplacement = vec3(0.0, 0.0, 0.0);
+    orbitalDisplacement.x = orbitalCoordinates.z * cos(orbitalCoordinates.y) * cos(orbitalCoordinates.x);
+    orbitalDisplacement.y = orbitalCoordinates.z * sin(orbitalCoordinates.y);
+    orbitalDisplacement.z = orbitalCoordinates.z * cos(orbitalCoordinates.y) * sin(orbitalCoordinates.x);
+    vec3 cameraPosition = referencePosition + orbitalDisplacement;
+   
+    const vec3 referenceUpward = vec3(0.0, 1.0, 0.0);
+    vec3 cameraForward = normalize(referencePosition - cameraPosition);
+    vec3 cameraRightward = normalize(cross(referenceUpward, cameraForward));
+    vec3 cameraUpward = normalize(cross(cameraForward, cameraRightward));
+    mat3 cameraOrientation = mat3(cameraRightward, cameraUpward, cameraForward);
+    vec2 projectionPosition = (2.0 * fragmentPosition - iResolution.xy) / min(iResolution.x, iResolution.y);
+    float projectionAngle = 60.0;
+    float projectionScale = 1.0 / tan(0.5 * radians(projectionAngle));
+    vec3 cameraDirection = normalize(cameraOrientation * vec3(projectionPosition, projectionScale));
+    
+    vec2 radialCoordinates = vec2(atan(cameraDirection.x, cameraDirection.z), asin(cameraDirection.y));
+    
+    fragmentColor.r = 0.5 + 0.5 * sin(radialCoordinates.x) * sin(radialCoordinates.y);
+    fragmentColor.g = 0.5 + 0.5 * cos(radialCoordinates.x) * cos(radialCoordinates.y);
+    
+    source cameraSource = source(cameraPosition, cameraDirection);
+    
+    float sampleIntersection = UnfoundIntersection;
+    
+    if (checkSphereIntersection(cameraSource, sphere(vec3(50.0, -50.0, 50.0), 75.0), sampleIntersection))
+    {
+        fragmentColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+    
+    if (checkSphereIntersection(cameraSource, sphere(vec3(-100.0, 75.0, -25.0),  75.0), sampleIntersection))
+    {
+        fragmentColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
 }
 ```
