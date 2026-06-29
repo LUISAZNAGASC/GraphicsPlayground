@@ -1,0 +1,60 @@
+struct source { vec3 position; vec3 direction; };
+
+struct sphere { vec3 position; float radius; };
+
+float computeSphereCoverage(const in source sampleSource, const in sphere sampleSphere)
+{
+    vec3 relativePosition = sampleSource.position - sampleSphere.position;
+    
+    vec3 orthogonalVector = cross(relativePosition, sampleSource.direction);
+    
+    float orthogonalDistance = length(orthogonalVector) / length(sampleSource.direction);
+    
+    vec2 smoothnessInterval = sampleSphere.radius + vec2(-1.0, 1.0) * fwidth(orthogonalDistance) / 2.0;
+    
+    float sphereCoverage = 1.0 - smoothstep(smoothnessInterval.x, smoothnessInterval.y, orthogonalDistance);
+    
+    return sphereCoverage;
+}
+
+void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
+{
+    fragmentColor = vec4(0.0, 0.0, 0.0, 1.0);
+    
+    const vec3 referencePosition = vec3(0.0, 0.0, 0.0);
+   
+    float orbitalLongitude = 45.0 + 45.0 * iTime;
+    float orbitalLatitude = 45.0;
+    float orbitalAltitude = 500.0;
+    vec3 orbitalCoordinates = vec3(radians(orbitalLongitude), radians(orbitalLatitude), orbitalAltitude);
+    vec3 orbitalDisplacement = vec3(0.0, 0.0, 0.0);
+    orbitalDisplacement.x = orbitalCoordinates.z * cos(orbitalCoordinates.y) * cos(orbitalCoordinates.x);
+    orbitalDisplacement.y = orbitalCoordinates.z * sin(orbitalCoordinates.y);
+    orbitalDisplacement.z = orbitalCoordinates.z * cos(orbitalCoordinates.y) * sin(orbitalCoordinates.x);
+    vec3 cameraPosition = referencePosition + orbitalDisplacement;
+   
+    const vec3 referenceUpward = vec3(0.0, 1.0, 0.0);
+    vec3 cameraForward = normalize(referencePosition - cameraPosition);
+    vec3 cameraRightward = normalize(cross(referenceUpward, cameraForward));
+    vec3 cameraUpward = normalize(cross(cameraForward, cameraRightward));
+    mat3 cameraOrientation = mat3(cameraRightward, cameraUpward, cameraForward);
+    vec2 projectionPosition = (2.0 * fragmentPosition - iResolution.xy) / min(iResolution.x, iResolution.y);
+    float projectionAngle = 60.0;
+    float projectionScale = 1.0 / tan(0.5 * radians(projectionAngle));
+    vec3 cameraDirection = normalize(cameraOrientation * vec3(projectionPosition, projectionScale));
+    
+    source cameraSource = source(cameraPosition, cameraDirection);
+    
+    float shapeCoverage = 0.0;
+    
+    shapeCoverage = shapeCoverage + computeSphereCoverage(cameraSource, sphere(vec3(-125.0, -125.0, -125.0), 75.0));
+    shapeCoverage = shapeCoverage + computeSphereCoverage(cameraSource, sphere(vec3(-125.0, -125.0, 125.0), 75.0));
+    shapeCoverage = shapeCoverage + computeSphereCoverage(cameraSource, sphere(vec3(125.0, -125.0, -125.0), 75.0));
+    shapeCoverage = shapeCoverage + computeSphereCoverage(cameraSource, sphere(vec3(125.0, -125.0, 125.0), 75.0));
+    shapeCoverage = shapeCoverage + computeSphereCoverage(cameraSource, sphere(vec3(-125.0, 125.0, -125.0), 75.0));
+    shapeCoverage = shapeCoverage + computeSphereCoverage(cameraSource, sphere(vec3(-125.0, 125.0, 125.0), 75.0));
+    shapeCoverage = shapeCoverage + computeSphereCoverage(cameraSource, sphere(vec3(125.0, 125.0, -125.0), 75.0));
+    shapeCoverage = shapeCoverage + computeSphereCoverage(cameraSource, sphere(vec3(125.0, 125.0, 125.0), 75.0));
+    
+    fragmentColor = vec4(vec3(shapeCoverage), 1.0);
+}
