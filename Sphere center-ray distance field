@@ -40,7 +40,7 @@ float computeSceneCoverage(const in source sampleSource, const in vec2 visibilit
     {
         float currentCoverage = computeSphereCoverage(sampleSource, sphereCollection[sphereIndex], visibilityRange);
         
-        sceneCoverage = 1.0 - (1.0 - sceneCoverage) * (1.0 - currentCoverage);
+        sceneCoverage = max(sceneCoverage, currentCoverage);
     }
     
     return sceneCoverage;
