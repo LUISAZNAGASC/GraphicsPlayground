@@ -50,7 +50,7 @@ void applyGammaCorrection(inout vec3 fragmentColor)
 {
     vec3 lowerSelection = 12.9200000 * fragmentColor;
     
-    vec3 upperSelection = 1.0555555 * pow(fragmentColor, vec3(0.4166667)) - 0.0550000;
+    vec3 upperSelection = 1.0550000 * pow(fragmentColor, vec3(0.4166667)) - 0.0550000;
     
     vec3 pickerSelection = step(0.0031308, fragmentColor);
     
