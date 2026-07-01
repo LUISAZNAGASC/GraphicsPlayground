@@ -40,7 +40,7 @@ float computeSceneCoverage(const in source sampleSource, const in vec2 visibilit
     {
         float currentCoverage = computeSphereCoverage(sampleSource, sphereCollection[sphereIndex], visibilityRange);
         
-        sceneCoverage = max(sceneCoverage, currentCoverage);
+        sceneCoverage = 1.0 - (1.0 - sceneCoverage) * (1.0 - currentCoverage);
     }
     
     return sceneCoverage;
@@ -48,11 +48,9 @@ float computeSceneCoverage(const in source sampleSource, const in vec2 visibilit
 
 void applyGammaCorrection(inout vec3 fragmentColor)
 {
-    fragmentColor = clamp(fragmentColor, 0.0, 1.0);
+    vec3 lowerSelection = 12.9200000 * fragmentColor;
     
-    vec3 lowerSelection = 12.9222222 * fragmentColor;
-    
-    vec3 upperSelection = 1.0555555 * pow(fragmentColor, vec3(0.4545454)) - 0.0555555;
+    vec3 upperSelection = 1.0555555 * pow(fragmentColor, vec3(0.4166667)) - 0.0550000;
     
     vec3 pickerSelection = step(0.0031308, fragmentColor);
     
@@ -89,7 +87,7 @@ void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
     
     float sceneCoverage = computeSceneCoverage(cameraSource, vec2(0.001, 1000.0));
     
-    fragmentColor = vec4(vec3(sceneCoverage), 1.0);
+    fragmentColor.rgb = mix(vec3(0.05, 0.05, 0.05), vec3(1.0, 0.0, 1.0), sceneCoverage);
     
     applyGammaCorrection(fragmentColor.rgb);
 }
