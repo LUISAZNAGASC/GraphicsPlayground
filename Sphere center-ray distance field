@@ -8,8 +8,9 @@ float getSphereCoverage(const in source sampleSource, const in sphere sampleSphe
     
     float projectionDistance = dot(relativePosition, sampleSource.direction);
     
-    float influenceWeight = (projectionDistance - projectionRange.x) / (projectionRange.y - projectionRange.x);
-    influenceWeight = 1.0 - clamp(influenceWeight, 0.0, 1.0);
+    if (projectionDistance < projectionRange.x || projectionDistance > projectionRange.y) return 0.0;
+    
+    float influenceWeight = 1.0 - (projectionDistance - projectionRange.x) / (projectionRange.y - projectionRange.x);
     
     float orthogonalDistance = length(relativePosition - projectionDistance * sampleSource.direction);
     
@@ -30,11 +31,23 @@ void setSceneCoverage(const in source sampleSource, const in sphere sampleSphere
     sampleCoverage = 1.0 - (1.0 - sampleCoverage) * (1.0 - sphereCoverage);
 }
 
+void setSceneCoverage(const in source sampleSource, const in float matrixSeparation, const in float matrixDimension, const in int matrixExtension, inout float sampleCoverage)
+{
+    for (int matrixXIndex = -matrixExtension; matrixXIndex <= matrixExtension; matrixXIndex++)
+    for (int matrixYIndex = -matrixExtension; matrixYIndex <= matrixExtension; matrixYIndex++)
+    for (int matrixZIndex = -matrixExtension; matrixZIndex <= matrixExtension; matrixZIndex++)
+    {
+        vec3 elementPosition = vec3(float(matrixXIndex), float(matrixYIndex), float(matrixZIndex)) * matrixSeparation;
+        
+        setSceneCoverage(sampleSource, sphere(elementPosition, matrixDimension), sampleCoverage);
+    }
+}
+
 void applyGammaCorrection(inout vec3 fragmentColor)
 {
-    vec3 lowerSelection = vec3(12.9200000) * fragmentColor;
+    vec3 lowerSelection = vec3(12.92) * fragmentColor;
     
-    vec3 upperSelection = vec3(1.0550000) * pow(fragmentColor, vec3(0.4166667)) - vec3(0.0550000);
+    vec3 upperSelection = vec3(1.055) * pow(fragmentColor, vec3(0.4166667)) - vec3(0.055);
     
     vec3 pickerSelection = step(vec3(0.0031308), fragmentColor);
     
@@ -71,14 +84,7 @@ void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
     
     float sceneCoverage = 0.0;
     
-    setSceneCoverage(cameraSource, sphere(vec3(-150.0, -150.0, -150.0), 50.0), sceneCoverage);
-    setSceneCoverage(cameraSource, sphere(vec3(-150.0, -150.0, 150.0), 50.0), sceneCoverage);
-    setSceneCoverage(cameraSource, sphere(vec3(150.0, -150.0, -150.0), 50.0), sceneCoverage);
-    setSceneCoverage(cameraSource, sphere(vec3(150.0, -150.0, 150.0), 50.0), sceneCoverage);
-    setSceneCoverage(cameraSource, sphere(vec3(-150.0, 150.0, -150.0), 50.0), sceneCoverage);
-    setSceneCoverage(cameraSource, sphere(vec3(-150.0, 150.0, 150.0), 50.0), sceneCoverage);
-    setSceneCoverage(cameraSource, sphere(vec3(150.0, 150.0, -150.0), 50.0), sceneCoverage);
-    setSceneCoverage(cameraSource, sphere(vec3(150.0, 150.0, 150.0), 50.0), sceneCoverage);
+    setSceneCoverage(cameraSource, 100.0, 50.0, 2, sceneCoverage);
     
     vec3 backgroundColor = vec3(0.05) + vec3(0.1, 0.15, 0.2) * (1.0 - sceneCoverage);
     vec3 foregroundColor = vec3(0.95, 0.95, 1.0);
