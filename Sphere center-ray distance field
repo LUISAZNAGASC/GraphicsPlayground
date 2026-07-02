@@ -10,23 +10,23 @@ float getSphereCoverage(const in source sampleSource, const in sphere sampleSphe
     
     if (projectionDistance < projectionRange.x || projectionDistance > projectionRange.y) return 0.0;
     
-    float influenceWeight = 1.0 - (projectionDistance - projectionRange.x) / (projectionRange.y - projectionRange.x);
+    float projectionWeight = 1.0 - (projectionDistance - projectionRange.x) / (projectionRange.y - projectionRange.x);
     
     float orthogonalDistance = length(relativePosition - projectionDistance * sampleSource.direction);
     
     vec2 smoothnessInterval = sampleSphere.radius + vec2(-0.5, 0.5) * fwidth(orthogonalDistance);
     
     float sphereCoverage = 1.0 - smoothstep(smoothnessInterval.x, smoothnessInterval.y, orthogonalDistance);
-    sphereCoverage = sphereCoverage * influenceWeight;
+    sphereCoverage = sphereCoverage * projectionWeight;
     
     return sphereCoverage;
 }
 
 void setSceneCoverage(const in source sampleSource, const in sphere sampleSphere, inout float sampleCoverage)
 {
-    const vec2 ProjectionRange = vec2(0.001, 1000.0);
+    const vec2 projectionRange = vec2(0.001, 1000.0);
     
-    float sphereCoverage = getSphereCoverage(sampleSource, sampleSphere, ProjectionRange);
+    float sphereCoverage = getSphereCoverage(sampleSource, sampleSphere, projectionRange);
     
     sampleCoverage = 1.0 - (1.0 - sampleCoverage) * (1.0 - sphereCoverage);
 }
@@ -86,8 +86,8 @@ void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
     
     setSceneCoverage(cameraSource, 100.0, 50.0, 2, sceneCoverage);
     
-    vec3 backgroundColor = vec3(0.05) + vec3(0.1, 0.15, 0.2) * (1.0 - sceneCoverage);
-    vec3 foregroundColor = vec3(0.95, 0.95, 1.0);
+    vec3 backgroundColor = vec3(0.025, 0.025, 0.075) + vec3(0.25, 0.125, 0.0) * (1.0 - sceneCoverage);
+    vec3 foregroundColor = vec3(0.95);
     
     fragmentColor.rgb = mix(backgroundColor, foregroundColor, sceneCoverage);
     
