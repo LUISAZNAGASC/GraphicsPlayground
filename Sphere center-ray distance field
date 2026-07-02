@@ -80,7 +80,10 @@ void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
     setSceneCoverage(cameraSource, sphere(vec3(150.0, 150.0, -150.0), 50.0), sceneCoverage);
     setSceneCoverage(cameraSource, sphere(vec3(150.0, 150.0, 150.0), 50.0), sceneCoverage);
     
-    fragmentColor.rgb = mix(vec3(0.05, 0.05, 0.05), vec3(1.0, 0.0, 1.0), sceneCoverage);
+    vec3 backgroundColor = vec3(0.05) + vec3(0.1, 0.15, 0.2) * (1.0 - sceneCoverage);
+    vec3 foregroundColor = vec3(0.95, 0.95, 1.0);
+    
+    fragmentColor.rgb = mix(backgroundColor, foregroundColor, sceneCoverage);
     
     applyGammaCorrection(fragmentColor.rgb);
 }
