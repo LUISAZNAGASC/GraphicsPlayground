@@ -2,20 +2,7 @@ struct source { vec3 position; vec3 direction; };
 
 struct sphere { vec3 position; float radius; };
 
-const uint TotalSpheres = 8u;
-const sphere sphereCollection[TotalSpheres] = sphere[]
-(
-    sphere(vec3(-150.0, -150.0, -150.0), 50.0),
-    sphere(vec3(-150.0, -150.0, 150.0), 50.0),
-    sphere(vec3(150.0, -150.0, -150.0), 50.0),
-    sphere(vec3(150.0, -150.0, 150.0), 50.0),
-    sphere(vec3(-150.0, 150.0, -150.0), 50.0),
-    sphere(vec3(-150.0, 150.0, 150.0), 50.0),
-    sphere(vec3(150.0, 150.0, -150.0), 50.0),
-    sphere(vec3(150.0, 150.0, 150.0), 50.0)
-);
-
-float computeSphereCoverage(const in source sampleSource, const in sphere sampleSphere, const in vec2 visibilityRange)
+float getSphereCoverage(const in source sampleSource, const in sphere sampleSphere, const in vec2 visibilityRange)
 {
     vec3 relativePosition = sampleSphere.position - sampleSource.position;
     
@@ -25,34 +12,29 @@ float computeSphereCoverage(const in source sampleSource, const in sphere sample
     
     float orthogonalDistance = length(relativePosition - projectionDistance * sampleSource.direction);
     
-    vec2 smoothnessInterval = sampleSphere.radius + vec2(-1.0, 1.0) * 0.5 * fwidth(orthogonalDistance);
+    vec2 smoothnessInterval = sampleSphere.radius + vec2(-0.5, 0.5) * fwidth(orthogonalDistance);
     
     float sphereCoverage = 1.0 - smoothstep(smoothnessInterval.x, smoothnessInterval.y, orthogonalDistance);
     
     return sphereCoverage;
 }
 
-float computeSceneCoverage(const in source sampleSource, const in vec2 visibilityRange)
+void setSceneCoverage(const in source sampleSource, const in sphere sampleSphere, inout float sampleCoverage)
 {
-    float sceneCoverage = 0.0;
+    const vec2 VisibilityRange = vec2(0.001, 1000.0);
     
-    for (uint sphereIndex = 0u; sphereIndex < TotalSpheres; sphereIndex++)
-    {
-        float currentCoverage = computeSphereCoverage(sampleSource, sphereCollection[sphereIndex], visibilityRange);
-        
-        sceneCoverage = 1.0 - (1.0 - sceneCoverage) * (1.0 - currentCoverage);
-    }
+    float sphereCoverage = getSphereCoverage(sampleSource, sampleSphere, VisibilityRange);
     
-    return sceneCoverage;
+    sampleCoverage = 1.0 - (1.0 - sampleCoverage) * (1.0 - sphereCoverage);
 }
 
 void applyGammaCorrection(inout vec3 fragmentColor)
 {
-    vec3 lowerSelection = 12.9200000 * fragmentColor;
+    vec3 lowerSelection = vec3(12.9200000) * fragmentColor;
     
-    vec3 upperSelection = 1.0550000 * pow(fragmentColor, vec3(0.4166667)) - 0.0550000;
+    vec3 upperSelection = vec3(1.0550000) * pow(fragmentColor, vec3(0.4166667)) - vec3(0.0550000);
     
-    vec3 pickerSelection = step(0.0031308, fragmentColor);
+    vec3 pickerSelection = step(vec3(0.0031308), fragmentColor);
     
     fragmentColor = mix(lowerSelection, upperSelection, pickerSelection);
 }
@@ -85,7 +67,16 @@ void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
     
     source cameraSource = source(cameraPosition, cameraDirection);
     
-    float sceneCoverage = computeSceneCoverage(cameraSource, vec2(0.001, 1000.0));
+    float sceneCoverage = 0.0;
+    
+    setSceneCoverage(cameraSource, sphere(vec3(-150.0, -150.0, -150.0), 50.0), sceneCoverage);
+    setSceneCoverage(cameraSource, sphere(vec3(-150.0, -150.0, 150.0), 50.0), sceneCoverage);
+    setSceneCoverage(cameraSource, sphere(vec3(150.0, -150.0, -150.0), 50.0), sceneCoverage);
+    setSceneCoverage(cameraSource, sphere(vec3(150.0, -150.0, 150.0), 50.0), sceneCoverage);
+    setSceneCoverage(cameraSource, sphere(vec3(-150.0, 150.0, -150.0), 50.0), sceneCoverage);
+    setSceneCoverage(cameraSource, sphere(vec3(-150.0, 150.0, 150.0), 50.0), sceneCoverage);
+    setSceneCoverage(cameraSource, sphere(vec3(150.0, 150.0, -150.0), 50.0), sceneCoverage);
+    setSceneCoverage(cameraSource, sphere(vec3(150.0, 150.0, 150.0), 50.0), sceneCoverage);
     
     fragmentColor.rgb = mix(vec3(0.05, 0.05, 0.05), vec3(1.0, 0.0, 1.0), sceneCoverage);
     
