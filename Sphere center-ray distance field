@@ -2,28 +2,30 @@ struct source { vec3 position; vec3 direction; };
 
 struct sphere { vec3 position; float radius; };
 
-float getSphereCoverage(const in source sampleSource, const in sphere sampleSphere, const in vec2 visibilityRange)
+float getSphereCoverage(const in source sampleSource, const in sphere sampleSphere, const in vec2 projectionRange)
 {
     vec3 relativePosition = sampleSphere.position - sampleSource.position;
     
     float projectionDistance = dot(relativePosition, sampleSource.direction);
     
-    if (projectionDistance < visibilityRange.x || projectionDistance > visibilityRange.y) return 0.0;
+    float influenceWeight = (projectionDistance - projectionRange.x) / (projectionRange.y - projectionRange.x);
+    influenceWeight = 1.0 - clamp(influenceWeight, 0.0, 1.0);
     
     float orthogonalDistance = length(relativePosition - projectionDistance * sampleSource.direction);
     
     vec2 smoothnessInterval = sampleSphere.radius + vec2(-0.5, 0.5) * fwidth(orthogonalDistance);
     
     float sphereCoverage = 1.0 - smoothstep(smoothnessInterval.x, smoothnessInterval.y, orthogonalDistance);
+    sphereCoverage = sphereCoverage * influenceWeight;
     
     return sphereCoverage;
 }
 
 void setSceneCoverage(const in source sampleSource, const in sphere sampleSphere, inout float sampleCoverage)
 {
-    const vec2 VisibilityRange = vec2(0.001, 1000.0);
+    const vec2 ProjectionRange = vec2(0.001, 1000.0);
     
-    float sphereCoverage = getSphereCoverage(sampleSource, sampleSphere, VisibilityRange);
+    float sphereCoverage = getSphereCoverage(sampleSource, sampleSphere, ProjectionRange);
     
     sampleCoverage = 1.0 - (1.0 - sampleCoverage) * (1.0 - sphereCoverage);
 }
