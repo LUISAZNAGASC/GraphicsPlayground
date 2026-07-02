@@ -1,0 +1,100 @@
+struct source { vec3 position; vec3 direction; };
+
+struct sphere { vec3 position; float radius; };
+
+float getSphereCoverage(const in source sampleSource, const in sphere sampleSphere, const in vec2 projectionRange)
+{
+    vec3 relativePosition = sampleSphere.position - sampleSource.position;
+    
+    float projectionDistance = dot(relativePosition, sampleSource.direction);
+    
+    if (projectionDistance < projectionRange.x || projectionDistance > projectionRange.y) return 0.0;
+    
+    float projectionWeight = 1.0 - (projectionDistance - projectionRange.x) / (projectionRange.y - projectionRange.x);
+    
+    float orthogonalDistance = length(relativePosition - projectionDistance * sampleSource.direction);
+    
+    vec2 smoothnessInterval = sampleSphere.radius + vec2(-0.5, 0.5) * fwidth(orthogonalDistance);
+    
+    float sphereCoverage = 1.0 - smoothstep(smoothnessInterval.x, smoothnessInterval.y, orthogonalDistance);
+    sphereCoverage = sphereCoverage * projectionWeight;
+    
+    return sphereCoverage;
+}
+
+void setSceneCoverage(const in source sampleSource, const in sphere sampleSphere, inout float sampleCoverage)
+{
+    const vec2 projectionRange = vec2(0.001, 1000.0);
+    
+    float sphereCoverage = getSphereCoverage(sampleSource, sampleSphere, projectionRange);
+    
+    // Alpha-style accumulation of sphere coverage.
+    sampleCoverage = 1.0 - (1.0 - sampleCoverage) * (1.0 - sphereCoverage);
+}
+
+void setSceneCoverage(const in source sampleSource, const in float matrixSeparation, const in float matrixDimension, const in int matrixExtension, inout float sampleCoverage)
+{
+    for (int matrixXIndex = -matrixExtension; matrixXIndex <= matrixExtension; matrixXIndex++)
+    for (int matrixYIndex = -matrixExtension; matrixYIndex <= matrixExtension; matrixYIndex++)
+    for (int matrixZIndex = -matrixExtension; matrixZIndex <= matrixExtension; matrixZIndex++)
+    {
+        vec3 elementPosition = vec3(float(matrixXIndex), float(matrixYIndex), float(matrixZIndex)) * matrixSeparation;
+        
+        float waveAnimation = sin(float(matrixXIndex) * 0.75 - iTime * 5.0);
+        
+        elementPosition.y = elementPosition.y + waveAnimation * 50.0;
+        
+        setSceneCoverage(sampleSource, sphere(elementPosition, matrixDimension), sampleCoverage);
+    }
+}
+
+void applyGammaCorrection(inout vec3 fragmentColor)
+{
+    vec3 lowerSelection = vec3(12.92) * fragmentColor;
+    
+    vec3 upperSelection = vec3(1.055) * pow(fragmentColor, vec3(0.4166667)) - vec3(0.055);
+    
+    vec3 pickerSelection = step(vec3(0.0031308), fragmentColor);
+    
+    fragmentColor = mix(lowerSelection, upperSelection, pickerSelection);
+}
+
+void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
+{
+    fragmentColor = vec4(0.0, 0.0, 0.0, 1.0);
+    
+    const vec3 referencePosition = vec3(0.0, 0.0, 0.0);
+   
+    float orbitalLongitude = 45.0 + 45.0 * iTime;
+    float orbitalLatitude = 45.0;
+    float orbitalAltitude = 500.0;
+    vec3 orbitalCoordinates = vec3(radians(orbitalLongitude), radians(orbitalLatitude), orbitalAltitude);
+    vec3 orbitalDisplacement = vec3(0.0, 0.0, 0.0);
+    orbitalDisplacement.x = orbitalCoordinates.z * cos(orbitalCoordinates.y) * cos(orbitalCoordinates.x);
+    orbitalDisplacement.y = orbitalCoordinates.z * sin(orbitalCoordinates.y);
+    orbitalDisplacement.z = orbitalCoordinates.z * cos(orbitalCoordinates.y) * sin(orbitalCoordinates.x);
+    vec3 cameraPosition = referencePosition + orbitalDisplacement;
+   
+    const vec3 referenceUpward = vec3(0.0, 1.0, 0.0);
+    vec3 cameraForward = normalize(referencePosition - cameraPosition);
+    vec3 cameraRightward = normalize(cross(referenceUpward, cameraForward));
+    vec3 cameraUpward = normalize(cross(cameraForward, cameraRightward));
+    mat3 cameraOrientation = mat3(cameraRightward, cameraUpward, cameraForward);
+    vec2 projectionPosition = (2.0 * fragmentPosition - iResolution.xy) / min(iResolution.x, iResolution.y);
+    float projectionAngle = 60.0;
+    float projectionScale = 1.0 / tan(0.5 * radians(projectionAngle));
+    vec3 cameraDirection = normalize(cameraOrientation * vec3(projectionPosition, projectionScale));
+    
+    source cameraSource = source(cameraPosition, cameraDirection);
+    
+    float sceneCoverage = 0.0;
+    
+    setSceneCoverage(cameraSource, 100.0, 50.0, 2, sceneCoverage);
+    
+    vec3 backgroundColor = vec3(0.025, 0.025, 0.075) + vec3(0.25, 0.125, 0.0) * (1.0 - sceneCoverage);
+    vec3 foregroundColor = vec3(0.95);
+    
+    fragmentColor.rgb = mix(backgroundColor, foregroundColor, sceneCoverage);
+    
+    applyGammaCorrection(fragmentColor.rgb);
+}
