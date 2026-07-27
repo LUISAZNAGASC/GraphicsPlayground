@@ -27,7 +27,7 @@ float getSphereIntersection(const in source sampleSource, const in sphere sample
     return InvalidIntersection;
 }
 
-bool checkSphereIntersection(const in source sampleSource, const in sphere sampleSphere, const in float minimumIntersection, const in float maximumIntersection, out float sphereIntersection)
+bool trySphereIntersection(const in source sampleSource, const in sphere sampleSphere, const in float minimumIntersection, const in float maximumIntersection, out float sphereIntersection)
 {
     sphereIntersection = getSphereIntersection(sampleSource, sampleSphere, minimumIntersection, maximumIntersection);
     
