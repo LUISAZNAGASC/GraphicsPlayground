@@ -30,7 +30,7 @@ bool trySphereIntersection(const in source sampleSource, const in sphere sampleS
 vec3 fibonacciSpherePoint(int i, int n)
 {
     const float goldenAngle = 3.14159265359 * (3.0 - sqrt(5.0));
-    float y = 1.0 - (float(i) / float(n - 1)) * 2.0; // de 1 a -1
+    float y = 1.0 - 2.0 * (float(i) + 0.5) / float(n);
     float radiusAtY = sqrt(max(0.0, 1.0 - y * y));
     float theta = goldenAngle * float(i);
     float x = cos(theta) * radiusAtY;
@@ -41,7 +41,7 @@ vec3 fibonacciSpherePoint(int i, int n)
 float fibonacciPointRadius(float sphereRadius, int pointCount, float packingFactor)
 {
     float cellRadius = 2.0 * sphereRadius / sqrt(float(pointCount));
-    return cellRadius * packingFactor;
+    return cellRadius;
 }
 
 void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
@@ -74,7 +74,7 @@ void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
 
     // --- Parámetros de la esfera de Fibonacci ---
     const int POINT_COUNT = 300;      // número de esferas pequeñas
-    const float SPHERE_RADIUS = 300.0; // radio de la esfera grande donde se distribuyen
+    const float SPHERE_RADIUS = 200.0; // radio de la esfera grande donde se distribuyen
      const float PACKING_FACTOR=1.0; // 1.0 = casi se tocan, <1.0 = separadas, >1.0 = se solapan
 
 float POINT_RADIUS = fibonacciPointRadius(SPHERE_RADIUS, POINT_COUNT, PACKING_FACTOR);
@@ -103,8 +103,8 @@ float POINT_RADIUS = fibonacciPointRadius(SPHERE_RADIUS, POINT_COUNT, PACKING_FA
     if (closestIntersection != InvalidIntersection)
     {
         vec3 lightDirection = normalize(vec3(1.0, 1.0, 1.0));
-        float diffuse = max(dot(closestNormal, -cameraDirection), 0.0);
+        float diffuse = max(0.5+0.5*dot(closestNormal, -cameraDirection), 0.0);
         float ambient = 0.25;
-        fragmentColor = vec4(closestColor * (ambient + (1.0 - ambient) * diffuse), 1.0);
+        fragmentColor = vec4(vec3(1.0,0.0,0.0) * (diffuse), 1.0);
     }
 }
