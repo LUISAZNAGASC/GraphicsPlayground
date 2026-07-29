@@ -45,9 +45,9 @@ vec3 getSphereAppearance(const in source sampleSource, const in sphere sampleSph
     
     vec3 componentAlignment = abs(surfaceDirection);
     float dominantAlignment = max(componentAlignment.x, max(componentAlignment.y, componentAlignment.z));
-    vec3 dominantAlbedo = step(vec3(dominantAlignment), componentAlignment);
+    vec3 dominantChrominance = step(vec3(dominantAlignment), componentAlignment);
     
-    vec3 sphereAppearance = observerAlignment * dominantAlbedo;
+    vec3 sphereAppearance = observerAlignment * dominantChrominance;
     
     return sphereAppearance;
 }
