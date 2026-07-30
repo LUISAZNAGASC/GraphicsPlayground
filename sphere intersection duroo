@@ -1,0 +1,372 @@
+const float RayMin = 0.0001;
+const float RayMax = 3.4028235e38;
+const float InvalidIntersection = -1.0;
+
+struct source { vec3 position; vec3 direction; };
+
+struct sphere { vec3 position; float radius; };
+
+struct contact { sphere object; float intersection; };
+
+float getSphereIntersection(const in source ray, const in sphere s, const in float tMin, const in float tMax)
+{
+    vec3 oc = ray.position - s.position;
+
+    float a = dot(ray.direction, ray.direction);
+    float b = 2.0 * dot(oc, ray.direction);
+    float c = dot(oc, oc) - s.radius * s.radius;
+
+    float d = b * b - 4.0 * a * c;
+
+    if(d < 0.0) return InvalidIntersection;
+
+    float r = sqrt(d);
+
+    float t0 = (-b - r) / (2.0 * a);
+    float t1 = (-b + r) / (2.0 * a);
+
+    if(t0 > tMin && t0 < tMax) return t0;
+    if(t1 > tMin && t1 < tMax) return t1;
+
+    return InvalidIntersection;
+}
+
+void testSphere(const in source ray, const in sphere s, inout contact hit)
+{
+    float t =getSphereIntersection(ray,s,RayMin,RayMax);
+
+    if(t != InvalidIntersection && t < hit.intersection) hit=contact(s,t);
+}
+
+contact createContact()
+{
+    contact hit;
+
+    hit.intersection = RayMax;
+    hit.object.position = vec3(0.0);
+    hit.object.radius = 0.0;
+
+    return hit;
+}
+
+vec3 getSphereAppearance(const in source ray, const in sphere s, const in float t)
+{
+    vec3 p = ray.position + t * ray.direction;
+    vec3 n = normalize(p - s.position);
+
+    vec3 view = normalize(ray.position - p);
+
+    float light = max(0.0, 0.5 + 0.5 * dot(view, n));
+
+    vec3 a = abs(n);
+
+    float m = max(a.x, max(a.y, a.z));
+
+    vec3 color = step(vec3(m), a);
+
+    return light * color;
+}
+
+contact trace(const in source ray)
+{
+    contact hit = createContact();
+
+    testSphere(ray, sphere(vec3( 100.0, 100.0,-100.0),100.0), hit);
+    testSphere(ray, sphere(vec3(-150.0,  50.0,   0.0), 75.0), hit);
+    testSphere(ray, sphere(vec3(   0.0,-100.0, 150.0), 60.0), hit);
+    testSphere(ray, sphere(vec3( 200.0,   0.0, 150.0), 80.0), hit);
+    testSphere(ray, sphere(vec3(-200.0, 150.0,-200.0), 90.0), hit);
+    testSphere(ray, sphere(vec3(   0.0, 200.0,   0.0),120.0), hit);
+    testSphere(ray, sphere(vec3( 250.0,-120.0,-150.0), 50.0), hit);
+    testSphere(ray, sphere(vec3(-280.0,-100.0, 120.0), 65.0), hit);
+    testSphere(ray, sphere(vec3( 180.0, 180.0, 220.0), 70.0), hit);
+    testSphere(ray, sphere(vec3(-100.0,-220.0,-100.0), 85.0), hit);
+    testSphere(ray, sphere(vec3( 320.0,  50.0,-250.0), 55.0), hit);
+    testSphere(ray, sphere(vec3(-350.0, 100.0, 200.0), 95.0), hit);
+    testSphere(ray, sphere(vec3( 150.0,-250.0, 300.0), 60.0), hit);
+    testSphere(ray, sphere(vec3(-250.0, 250.0,-300.0),110.0), hit);
+    testSphere(ray, sphere(vec3( 350.0,-180.0, 100.0), 75.0), hit);
+    testSphere(ray, sphere(vec3(-180.0, 300.0,-150.0), 45.0), hit);
+    testSphere(ray, sphere(vec3(  80.0, 320.0, 260.0), 80.0), hit);
+    testSphere(ray, sphere(vec3(-320.0,-250.0,-250.0),100.0), hit);
+    testSphere(ray, sphere(vec3( 420.0,   0.0,   0.0), 60.0), hit);
+    testSphere(ray, sphere(vec3(-420.0,   0.0,   0.0), 60.0), hit);
+    testSphere(ray, sphere(vec3(   0.0, 420.0,   0.0), 60.0), hit);
+    testSphere(ray, sphere(vec3(   0.0,-420.0,   0.0), 60.0), hit);
+    testSphere(ray, sphere(vec3(   0.0,   0.0, 420.0), 60.0), hit);
+    testSphere(ray, sphere(vec3(   0.0,   0.0,-420.0), 60.0), hit);
+    testSphere(ray, sphere(vec3( 260.0, 260.0,-260.0), 70.0), hit);
+    testSphere(ray, sphere(vec3(-260.0, 260.0, 260.0), 70.0), hit);
+    testSphere(ray, sphere(vec3( 260.0,-260.0, 260.0), 70.0), hit);
+    testSphere(ray, sphere(vec3(-260.0,-260.0,-260.0), 70.0), hit);
+    testSphere(ray, sphere(vec3( 150.0, 150.0, 150.0), 45.0), hit);
+    testSphere(ray, sphere(vec3(-150.0,-150.0,-150.0), 45.0), hit);
+    testSphere(ray, sphere(vec3(-397.0,-353.0,-319.0), 22.0), hit);
+    testSphere(ray, sphere(vec3(-344.0,-256.0,-188.0), 29.0), hit);
+    testSphere(ray, sphere(vec3(-291.0,-159.0, -57.0), 36.0), hit);
+    testSphere(ray, sphere(vec3(-238.0, -62.0,  74.0), 43.0), hit);
+    testSphere(ray, sphere(vec3(-185.0,  35.0, 205.0), 50.0), hit);
+    testSphere(ray, sphere(vec3(-132.0, 132.0, 336.0), 21.0), hit);
+    testSphere(ray, sphere(vec3( -79.0, 229.0,-440.0), 28.0), hit);
+    testSphere(ray, sphere(vec3( -26.0, 326.0,-309.0), 35.0), hit);
+    testSphere(ray, sphere(vec3(  27.0, 423.0,-178.0), 42.0), hit);
+    testSphere(ray, sphere(vec3(  80.0,-387.0, -47.0), 49.0), hit);
+    testSphere(ray, sphere(vec3( 133.0,-290.0,  84.0), 20.0), hit);
+    testSphere(ray, sphere(vec3( 186.0,-193.0, 215.0), 27.0), hit);
+    testSphere(ray, sphere(vec3( 239.0, -96.0, 346.0), 34.0), hit);
+    testSphere(ray, sphere(vec3( 292.0,   1.0,-430.0), 41.0), hit);
+    testSphere(ray, sphere(vec3( 345.0,  98.0,-299.0), 48.0), hit);
+    testSphere(ray, sphere(vec3( 398.0, 195.0,-168.0), 19.0), hit);
+    testSphere(ray, sphere(vec3( 451.0, 292.0, -37.0), 26.0), hit);
+    testSphere(ray, sphere(vec3(-403.0, 389.0,  94.0), 33.0), hit);
+    testSphere(ray, sphere(vec3(-350.0,-421.0, 225.0), 40.0), hit);
+    testSphere(ray, sphere(vec3(-297.0,-324.0, 356.0), 47.0), hit);
+    testSphere(ray, sphere(vec3(-244.0,-227.0,-420.0), 18.0), hit);
+    testSphere(ray, sphere(vec3(-191.0,-130.0,-289.0), 25.0), hit);
+    testSphere(ray, sphere(vec3(-138.0, -33.0,-158.0), 32.0), hit);
+    testSphere(ray, sphere(vec3( -85.0,  64.0, -27.0), 39.0), hit);
+    testSphere(ray, sphere(vec3( -32.0, 161.0, 104.0), 46.0), hit);
+    testSphere(ray, sphere(vec3(  21.0, 258.0, 235.0), 17.0), hit);
+    testSphere(ray, sphere(vec3(  74.0, 355.0, 366.0), 24.0), hit);
+    testSphere(ray, sphere(vec3( 127.0, 452.0,-410.0), 31.0), hit);
+    testSphere(ray, sphere(vec3( 180.0,-358.0,-279.0), 38.0), hit);
+    testSphere(ray, sphere(vec3( 233.0,-261.0,-148.0), 45.0), hit);
+    testSphere(ray, sphere(vec3( 286.0,-164.0, -17.0), 16.0), hit);
+    testSphere(ray, sphere(vec3( 339.0, -67.0, 114.0), 23.0), hit);
+    testSphere(ray, sphere(vec3( 392.0,  30.0, 245.0), 30.0), hit);
+    testSphere(ray, sphere(vec3( 445.0, 127.0, 376.0), 37.0), hit);
+    testSphere(ray, sphere(vec3(-409.0, 224.0,-400.0), 44.0), hit);
+    testSphere(ray, sphere(vec3(-356.0, 321.0,-269.0), 15.0), hit);
+    testSphere(ray, sphere(vec3(-303.0, 418.0,-138.0), 22.0), hit);
+    testSphere(ray, sphere(vec3(-250.0,-392.0,  -7.0), 29.0), hit);
+    testSphere(ray, sphere(vec3(-197.0,-295.0, 124.0), 36.0), hit);
+    testSphere(ray, sphere(vec3(-144.0,-198.0, 255.0), 43.0), hit);
+    testSphere(ray, sphere(vec3( -91.0,-101.0, 386.0), 50.0), hit);
+    testSphere(ray, sphere(vec3( -38.0,  -4.0,-390.0), 21.0), hit);
+    testSphere(ray, sphere(vec3(  15.0,  93.0,-259.0), 28.0), hit);
+    testSphere(ray, sphere(vec3(  68.0, 190.0,-128.0), 35.0), hit);
+    testSphere(ray, sphere(vec3( 121.0, 287.0,   3.0), 42.0), hit);
+    testSphere(ray, sphere(vec3( 174.0, 384.0, 134.0), 49.0), hit);
+    testSphere(ray, sphere(vec3( 227.0,-426.0, 265.0), 20.0), hit);
+    testSphere(ray, sphere(vec3( 280.0,-329.0, 396.0), 27.0), hit);
+    testSphere(ray, sphere(vec3( 333.0,-232.0,-380.0), 34.0), hit);
+    testSphere(ray, sphere(vec3( 386.0,-135.0,-249.0), 41.0), hit);
+    testSphere(ray, sphere(vec3( 439.0, -38.0,-118.0), 48.0), hit);
+    testSphere(ray, sphere(vec3(-415.0,  59.0,  13.0), 19.0), hit);
+    testSphere(ray, sphere(vec3(-362.0, 156.0, 144.0), 26.0), hit);
+    testSphere(ray, sphere(vec3(-309.0, 253.0, 275.0), 33.0), hit);
+    testSphere(ray, sphere(vec3(-256.0, 350.0, 406.0), 40.0), hit);
+    testSphere(ray, sphere(vec3(-203.0, 447.0,-370.0), 47.0), hit);
+    testSphere(ray, sphere(vec3(-150.0,-363.0,-239.0), 18.0), hit);
+    testSphere(ray, sphere(vec3( -97.0,-266.0,-108.0), 25.0), hit);
+    testSphere(ray, sphere(vec3( -44.0,-169.0,  23.0), 32.0), hit);
+    testSphere(ray, sphere(vec3(   9.0, -72.0, 154.0), 39.0), hit);
+    testSphere(ray, sphere(vec3(  62.0,  25.0, 285.0), 46.0), hit);
+    testSphere(ray, sphere(vec3( 115.0, 122.0, 416.0), 17.0), hit);
+    testSphere(ray, sphere(vec3( 168.0, 219.0,-360.0), 24.0), hit);
+    testSphere(ray, sphere(vec3( 221.0, 316.0,-229.0), 31.0), hit);
+    testSphere(ray, sphere(vec3( 274.0, 413.0, -98.0), 38.0), hit);
+    testSphere(ray, sphere(vec3( 327.0,-397.0,  33.0), 45.0), hit);
+    testSphere(ray, sphere(vec3( 380.0,-300.0, 164.0), 16.0), hit);
+    testSphere(ray, sphere(vec3( 433.0,-203.0, 295.0), 23.0), hit);
+    testSphere(ray, sphere(vec3(-421.0,-106.0, 426.0), 30.0), hit);
+    testSphere(ray, sphere(vec3(-368.0,  -9.0,-350.0), 37.0), hit);
+    testSphere(ray, sphere(vec3(-315.0,  88.0,-219.0), 44.0), hit);
+    testSphere(ray, sphere(vec3(-262.0, 185.0, -88.0), 15.0), hit);
+    testSphere(ray, sphere(vec3(-209.0, 282.0,  43.0), 22.0), hit);
+    testSphere(ray, sphere(vec3(-156.0, 379.0, 174.0), 29.0), hit);
+    testSphere(ray, sphere(vec3(-103.0,-431.0, 305.0), 36.0), hit);
+    testSphere(ray, sphere(vec3( -50.0,-334.0, 436.0), 43.0), hit);
+    testSphere(ray, sphere(vec3(   3.0,-237.0,-340.0), 50.0), hit);
+    testSphere(ray, sphere(vec3(  56.0,-140.0,-209.0), 21.0), hit);
+    testSphere(ray, sphere(vec3( 109.0, -43.0, -78.0), 28.0), hit);
+    testSphere(ray, sphere(vec3( 162.0,  54.0,  53.0), 35.0), hit);
+    testSphere(ray, sphere(vec3( 215.0, 151.0, 184.0), 42.0), hit);
+    testSphere(ray, sphere(vec3( 268.0, 248.0, 315.0), 49.0), hit);
+    testSphere(ray, sphere(vec3( 321.0, 345.0, 446.0), 20.0), hit);
+    testSphere(ray, sphere(vec3( 374.0, 442.0,-330.0), 27.0), hit);
+    testSphere(ray, sphere(vec3( 427.0,-368.0,-199.0), 34.0), hit);
+    testSphere(ray, sphere(vec3(-427.0,-271.0, -68.0), 41.0), hit);
+    testSphere(ray, sphere(vec3(-374.0,-174.0,  63.0), 48.0), hit);
+    testSphere(ray, sphere(vec3(-321.0, -77.0, 194.0), 19.0), hit);
+    testSphere(ray, sphere(vec3(-268.0,  20.0, 325.0), 26.0), hit);
+    testSphere(ray, sphere(vec3(-215.0, 117.0, 456.0), 33.0), hit);
+    testSphere(ray, sphere(vec3(-162.0, 214.0,-320.0), 40.0), hit);
+    testSphere(ray, sphere(vec3(-109.0, 311.0,-189.0), 47.0), hit);
+    testSphere(ray, sphere(vec3( -56.0, 408.0, -58.0), 18.0), hit);
+    testSphere(ray, sphere(vec3(  -3.0,-402.0,  73.0), 25.0), hit);
+    testSphere(ray, sphere(vec3(  50.0,-305.0, 204.0), 32.0), hit);
+    testSphere(ray, sphere(vec3( 103.0,-208.0, 335.0), 39.0), hit);
+    testSphere(ray, sphere(vec3( 156.0,-111.0,-441.0), 46.0), hit);
+    testSphere(ray, sphere(vec3( 209.0, -14.0,-310.0), 17.0), hit);
+    testSphere(ray, sphere(vec3( 262.0,  83.0,-179.0), 24.0), hit);
+    testSphere(ray, sphere(vec3( 315.0, 180.0, -48.0), 31.0), hit);
+    testSphere(ray, sphere(vec3( 100.0, 100.0,-100.0),100.0), hit);
+    testSphere(ray, sphere(vec3(-150.0,  50.0,   0.0), 75.0), hit);
+    testSphere(ray, sphere(vec3(   0.0,-100.0, 150.0), 60.0), hit);
+    testSphere(ray, sphere(vec3( 200.0,   0.0, 150.0), 80.0), hit);
+    testSphere(ray, sphere(vec3(-200.0, 150.0,-200.0), 90.0), hit);
+    testSphere(ray, sphere(vec3(   0.0, 200.0,   0.0),120.0), hit);
+    testSphere(ray, sphere(vec3( 250.0,-120.0,-150.0), 50.0), hit);
+    testSphere(ray, sphere(vec3(-280.0,-100.0, 120.0), 65.0), hit);
+    testSphere(ray, sphere(vec3( 180.0, 180.0, 220.0), 70.0), hit);
+    testSphere(ray, sphere(vec3(-100.0,-220.0,-100.0), 85.0), hit);
+    testSphere(ray, sphere(vec3( 320.0,  50.0,-250.0), 55.0), hit);
+    testSphere(ray, sphere(vec3(-350.0, 100.0, 200.0), 95.0), hit);
+    testSphere(ray, sphere(vec3( 150.0,-250.0, 300.0), 60.0), hit);
+    testSphere(ray, sphere(vec3(-250.0, 250.0,-300.0),110.0), hit);
+    testSphere(ray, sphere(vec3( 350.0,-180.0, 100.0), 75.0), hit);
+    testSphere(ray, sphere(vec3(-180.0, 300.0,-150.0), 45.0), hit);
+    testSphere(ray, sphere(vec3(  80.0, 320.0, 260.0), 80.0), hit);
+    testSphere(ray, sphere(vec3(-320.0,-250.0,-250.0),100.0), hit);
+    testSphere(ray, sphere(vec3( 420.0,   0.0,   0.0), 60.0), hit);
+    testSphere(ray, sphere(vec3(-420.0,   0.0,   0.0), 60.0), hit);
+    testSphere(ray, sphere(vec3(   0.0, 420.0,   0.0), 60.0), hit);
+    testSphere(ray, sphere(vec3(   0.0,-420.0,   0.0), 60.0), hit);
+    testSphere(ray, sphere(vec3(   0.0,   0.0, 420.0), 60.0), hit);
+    testSphere(ray, sphere(vec3(   0.0,   0.0,-420.0), 60.0), hit);
+    testSphere(ray, sphere(vec3( 260.0, 260.0,-260.0), 70.0), hit);
+    testSphere(ray, sphere(vec3(-260.0, 260.0, 260.0), 70.0), hit);
+    testSphere(ray, sphere(vec3( 260.0,-260.0, 260.0), 70.0), hit);
+    testSphere(ray, sphere(vec3(-260.0,-260.0,-260.0), 70.0), hit);
+    testSphere(ray, sphere(vec3( 150.0, 150.0, 150.0), 45.0), hit);
+    testSphere(ray, sphere(vec3(-150.0,-150.0,-150.0), 45.0), hit);
+    testSphere(ray, sphere(vec3(-397.0,-353.0,-319.0), 22.0), hit);
+    testSphere(ray, sphere(vec3(-344.0,-256.0,-188.0), 29.0), hit);
+    testSphere(ray, sphere(vec3(-291.0,-159.0, -57.0), 36.0), hit);
+    testSphere(ray, sphere(vec3(-238.0, -62.0,  74.0), 43.0), hit);
+    testSphere(ray, sphere(vec3(-185.0,  35.0, 205.0), 50.0), hit);
+    testSphere(ray, sphere(vec3(-132.0, 132.0, 336.0), 21.0), hit);
+    testSphere(ray, sphere(vec3( -79.0, 229.0,-440.0), 28.0), hit);
+    testSphere(ray, sphere(vec3( -26.0, 326.0,-309.0), 35.0), hit);
+    testSphere(ray, sphere(vec3(  27.0, 423.0,-178.0), 42.0), hit);
+    testSphere(ray, sphere(vec3(  80.0,-387.0, -47.0), 49.0), hit);
+    testSphere(ray, sphere(vec3( 133.0,-290.0,  84.0), 20.0), hit);
+    testSphere(ray, sphere(vec3( 186.0,-193.0, 215.0), 27.0), hit);
+    testSphere(ray, sphere(vec3( 239.0, -96.0, 346.0), 34.0), hit);
+    testSphere(ray, sphere(vec3( 292.0,   1.0,-430.0), 41.0), hit);
+    testSphere(ray, sphere(vec3( 345.0,  98.0,-299.0), 48.0), hit);
+    testSphere(ray, sphere(vec3( 398.0, 195.0,-168.0), 19.0), hit);
+    testSphere(ray, sphere(vec3( 451.0, 292.0, -37.0), 26.0), hit);
+    testSphere(ray, sphere(vec3(-403.0, 389.0,  94.0), 33.0), hit);
+    testSphere(ray, sphere(vec3(-350.0,-421.0, 225.0), 40.0), hit);
+    testSphere(ray, sphere(vec3(-297.0,-324.0, 356.0), 47.0), hit);
+    testSphere(ray, sphere(vec3(-244.0,-227.0,-420.0), 18.0), hit);
+    testSphere(ray, sphere(vec3(-191.0,-130.0,-289.0), 25.0), hit);
+    testSphere(ray, sphere(vec3(-138.0, -33.0,-158.0), 32.0), hit);
+    testSphere(ray, sphere(vec3( -85.0,  64.0, -27.0), 39.0), hit);
+    testSphere(ray, sphere(vec3( -32.0, 161.0, 104.0), 46.0), hit);
+    testSphere(ray, sphere(vec3(  21.0, 258.0, 235.0), 17.0), hit);
+    testSphere(ray, sphere(vec3(  74.0, 355.0, 366.0), 24.0), hit);
+    testSphere(ray, sphere(vec3( 127.0, 452.0,-410.0), 31.0), hit);
+    testSphere(ray, sphere(vec3( 180.0,-358.0,-279.0), 38.0), hit);
+    testSphere(ray, sphere(vec3( 233.0,-261.0,-148.0), 45.0), hit);
+    testSphere(ray, sphere(vec3( 286.0,-164.0, -17.0), 16.0), hit);
+    testSphere(ray, sphere(vec3( 339.0, -67.0, 114.0), 23.0), hit);
+    testSphere(ray, sphere(vec3( 392.0,  30.0, 245.0), 30.0), hit);
+    testSphere(ray, sphere(vec3( 445.0, 127.0, 376.0), 37.0), hit);
+    testSphere(ray, sphere(vec3(-409.0, 224.0,-400.0), 44.0), hit);
+    testSphere(ray, sphere(vec3(-356.0, 321.0,-269.0), 15.0), hit);
+    testSphere(ray, sphere(vec3(-303.0, 418.0,-138.0), 22.0), hit);
+    testSphere(ray, sphere(vec3(-250.0,-392.0,  -7.0), 29.0), hit);
+    testSphere(ray, sphere(vec3(-197.0,-295.0, 124.0), 36.0), hit);
+    testSphere(ray, sphere(vec3(-144.0,-198.0, 255.0), 43.0), hit);
+    testSphere(ray, sphere(vec3( -91.0,-101.0, 386.0), 50.0), hit);
+    testSphere(ray, sphere(vec3( -38.0,  -4.0,-390.0), 21.0), hit);
+    testSphere(ray, sphere(vec3(  15.0,  93.0,-259.0), 28.0), hit);
+    testSphere(ray, sphere(vec3(  68.0, 190.0,-128.0), 35.0), hit);
+    testSphere(ray, sphere(vec3( 121.0, 287.0,   3.0), 42.0), hit);
+    testSphere(ray, sphere(vec3( 174.0, 384.0, 134.0), 49.0), hit);
+    testSphere(ray, sphere(vec3( 227.0,-426.0, 265.0), 20.0), hit);
+    testSphere(ray, sphere(vec3( 280.0,-329.0, 396.0), 27.0), hit);
+    testSphere(ray, sphere(vec3( 333.0,-232.0,-380.0), 34.0), hit);
+    testSphere(ray, sphere(vec3( 386.0,-135.0,-249.0), 41.0), hit);
+    testSphere(ray, sphere(vec3( 439.0, -38.0,-118.0), 48.0), hit);
+    testSphere(ray, sphere(vec3(-415.0,  59.0,  13.0), 19.0), hit);
+    testSphere(ray, sphere(vec3(-362.0, 156.0, 144.0), 26.0), hit);
+    testSphere(ray, sphere(vec3(-309.0, 253.0, 275.0), 33.0), hit);
+    testSphere(ray, sphere(vec3(-256.0, 350.0, 406.0), 40.0), hit);
+    testSphere(ray, sphere(vec3(-203.0, 447.0,-370.0), 47.0), hit);
+    testSphere(ray, sphere(vec3(-150.0,-363.0,-239.0), 18.0), hit);
+    testSphere(ray, sphere(vec3( -97.0,-266.0,-108.0), 25.0), hit);
+    testSphere(ray, sphere(vec3( -44.0,-169.0,  23.0), 32.0), hit);
+    testSphere(ray, sphere(vec3(   9.0, -72.0, 154.0), 39.0), hit);
+    testSphere(ray, sphere(vec3(  62.0,  25.0, 285.0), 46.0), hit);
+    testSphere(ray, sphere(vec3( 115.0, 122.0, 416.0), 17.0), hit);
+    testSphere(ray, sphere(vec3( 168.0, 219.0,-360.0), 24.0), hit);
+    testSphere(ray, sphere(vec3( 221.0, 316.0,-229.0), 31.0), hit);
+    testSphere(ray, sphere(vec3( 274.0, 413.0, -98.0), 38.0), hit);
+    testSphere(ray, sphere(vec3( 327.0,-397.0,  33.0), 45.0), hit);
+    testSphere(ray, sphere(vec3( 380.0,-300.0, 164.0), 16.0), hit);
+    testSphere(ray, sphere(vec3( 433.0,-203.0, 295.0), 23.0), hit);
+    testSphere(ray, sphere(vec3(-421.0,-106.0, 426.0), 30.0), hit);
+    testSphere(ray, sphere(vec3(-368.0,  -9.0,-350.0), 37.0), hit);
+    testSphere(ray, sphere(vec3(-315.0,  88.0,-219.0), 44.0), hit);
+    testSphere(ray, sphere(vec3(-262.0, 185.0, -88.0), 15.0), hit);
+    testSphere(ray, sphere(vec3(-209.0, 282.0,  43.0), 22.0), hit);
+    testSphere(ray, sphere(vec3(-156.0, 379.0, 174.0), 29.0), hit);
+    testSphere(ray, sphere(vec3(-103.0,-431.0, 305.0), 36.0), hit);
+    testSphere(ray, sphere(vec3( -50.0,-334.0, 436.0), 43.0), hit);
+    testSphere(ray, sphere(vec3(   3.0,-237.0,-340.0), 50.0), hit);
+    testSphere(ray, sphere(vec3(  56.0,-140.0,-209.0), 21.0), hit);
+    testSphere(ray, sphere(vec3( 109.0, -43.0, -78.0), 28.0), hit);
+    testSphere(ray, sphere(vec3( 162.0,  54.0,  53.0), 35.0), hit);
+    testSphere(ray, sphere(vec3( 215.0, 151.0, 184.0), 42.0), hit);
+    testSphere(ray, sphere(vec3( 268.0, 248.0, 315.0), 49.0), hit);
+    testSphere(ray, sphere(vec3( 321.0, 345.0, 446.0), 20.0), hit);
+    testSphere(ray, sphere(vec3( 374.0, 442.0,-330.0), 27.0), hit);
+    testSphere(ray, sphere(vec3( 427.0,-368.0,-199.0), 34.0), hit);
+    testSphere(ray, sphere(vec3(-427.0,-271.0, -68.0), 41.0), hit);
+    testSphere(ray, sphere(vec3(-374.0,-174.0,  63.0), 48.0), hit);
+    testSphere(ray, sphere(vec3(-321.0, -77.0, 194.0), 19.0), hit);
+    testSphere(ray, sphere(vec3(-268.0,  20.0, 325.0), 26.0), hit);
+    testSphere(ray, sphere(vec3(-215.0, 117.0, 456.0), 33.0), hit);
+    testSphere(ray, sphere(vec3(-162.0, 214.0,-320.0), 40.0), hit);
+    testSphere(ray, sphere(vec3(-109.0, 311.0,-189.0), 47.0), hit);
+    testSphere(ray, sphere(vec3( -56.0, 408.0, -58.0), 18.0), hit);
+    testSphere(ray, sphere(vec3(  -3.0,-402.0,  73.0), 25.0), hit);
+    testSphere(ray, sphere(vec3(  50.0,-305.0, 204.0), 32.0), hit);
+    testSphere(ray, sphere(vec3( 103.0,-208.0, 335.0), 39.0), hit);
+    testSphere(ray, sphere(vec3( 156.0,-111.0,-441.0), 46.0), hit);
+    testSphere(ray, sphere(vec3( 209.0, -14.0,-310.0), 17.0), hit);
+    testSphere(ray, sphere(vec3( 262.0,  83.0,-179.0), 24.0), hit);
+    testSphere(ray, sphere(vec3( 315.0, 180.0, -48.0), 31.0), hit);
+
+    return hit;
+}
+
+void traceRay(inout vec3 color, const in source ray)
+{
+    contact hit = trace(ray);
+
+    if(hit.intersection <= RayMin || hit.intersection >= RayMax) return;
+
+    color= getSphereAppearance(ray, hit.object, hit.intersection);
+}
+
+void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
+{
+    fragmentColor=vec4(0.0,0.0,0.0,1.0);
+    
+    const vec3 target = vec3(0.0);
+
+    float longitude = radians(45.0 + 45.0 * iTime);
+    float latitude  = radians(45.0 + 45.0 * sin(iTime));
+    float distance  = 500.0;
+    vec3 cameraPosition;
+    cameraPosition.x = distance * cos(latitude) * cos(longitude);
+    cameraPosition.y = distance * sin(latitude);
+    cameraPosition.z = distance * cos(latitude) * sin(longitude);
+
+    vec3 forward = normalize(target - cameraPosition);
+    vec3 right   = normalize(cross(vec3(0.0,1.0,0.0), forward));
+    vec3 up      = cross(forward, right);
+    mat3 camera = mat3(right, up, forward);
+    float fov = 60.0;
+    float focal = 1.0 / tan(radians(fov * 0.5));vec2 uv =(2.0 * fragmentPosition - iResolution.xy) / min(iResolution.x, iResolution.y);
+    vec3 direction =normalize(camera * vec3(uv, focal));
+
+    source ray = source(cameraPosition, direction);
+
+    traceRay(fragmentColor.rgb, ray);
+}
