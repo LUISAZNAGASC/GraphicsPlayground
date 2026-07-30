@@ -1,0 +1,168 @@
+const float InvalidIntersection = 3.4028235e38;
+
+struct source
+{
+    vec3 position;
+    vec3 direction;
+};
+
+struct sphere
+{
+    vec3 position;
+    float radius;
+};
+
+struct contact
+{
+    sphere object;
+    float intersection;
+};
+
+float getSphereIntersection(
+    const in source ray,
+    const in sphere s,
+    const in float tMin,
+    const in float tMax)
+{
+    vec3 oc = ray.position - s.position;
+
+    float a = dot(ray.direction, ray.direction);
+    float b = 2.0 * dot(oc, ray.direction);
+    float c = dot(oc, oc) - s.radius * s.radius;
+
+    float d = b * b - 4.0 * a * c;
+
+    if(d < 0.0)
+        return InvalidIntersection;
+
+    float r = sqrt(d);
+
+    float t0 = (-b - r) / (2.0 * a);
+    float t1 = (-b + r) / (2.0 * a);
+
+    if(t0 > tMin && t0 < tMax)
+        return t0;
+
+    if(t1 > tMin && t1 < tMax)
+        return t1;
+
+    return InvalidIntersection;
+}
+
+void testSphere(
+    const in source ray,
+    const in sphere s,
+    inout contact hit)
+{
+    float t =
+        getSphereIntersection(
+            ray,
+            s,
+            0.001,
+            hit.intersection);
+
+    if(t < hit.intersection) hit = contact(s,t);
+}
+
+vec3 getSphereAppearance(
+    const in source ray,
+    const in sphere s,
+    const in float t)
+{
+    vec3 p = ray.position + t * ray.direction;
+
+    vec3 n = normalize(p - s.position);
+
+    vec3 view = normalize(ray.position - p);
+
+    float light = max(0.0, 0.5 + 0.5 * dot(view, n));
+
+    vec3 a = abs(n);
+
+    float m = max(a.x, max(a.y, a.z));
+
+    vec3 color = step(vec3(m), a);
+
+    return light * color;
+}
+
+contact trace(
+    const in source ray)
+{
+    contact hit = contact(sphere(vec3(0.0), 0.0), InvalidIntersection);
+
+    sphere s;
+    s.radius = 30.0;
+
+    for (int z = -180; z <= 180; z += 120)
+{
+    for (int y = -240; y <= 240; y += 120)
+    {
+        for (int x = -240; x <= 240; x += 120)
+        {
+            s.position = vec3(float(x), float(y), float(z));
+            testSphere(ray, s, hit);
+        }
+    }
+}
+
+return hit;
+}
+
+vec3 traceRay(const in source ray)
+{
+    contact hit = trace(ray);
+
+    if(hit.intersection == InvalidIntersection)
+        return vec3(0.0);
+
+    return getSphereAppearance(
+        ray,
+        hit.object,
+        hit.intersection);
+}
+
+void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
+{
+    //------------------------------------------------------
+    // Cámara
+    //------------------------------------------------------
+
+    const vec3 target = vec3(0.0);
+
+    float longitude = radians(45.0 + 45.0 * iTime);
+    float latitude  = radians(45.0 + 45.0 * sin(iTime));
+    float distance1  = 500.0;
+
+    vec3 cameraPosition;
+
+    cameraPosition.x = distance1 * cos(latitude) * cos(longitude);
+    cameraPosition.y = distance1 * sin(latitude);
+    cameraPosition.z = distance1 * cos(latitude) * sin(longitude);
+
+    vec3 forward = normalize(target - cameraPosition);
+    vec3 right   = normalize(cross(vec3(0.0,1.0,0.0), forward));
+    vec3 up      = cross(forward, right);
+
+    mat3 camera = mat3(right, up, forward);
+
+    float fov = 60.0;
+    float focal = 1.0 / tan(radians(fov * 0.5));
+
+    //------------------------------------------------------
+    // Un solo rayo por píxel
+    //------------------------------------------------------
+
+    vec2 uv =
+        (2.0 * fragmentPosition - iResolution.xy)
+        / min(iResolution.x, iResolution.y);
+
+    source ray;
+
+    ray.position = cameraPosition;
+    ray.direction = normalize(camera * vec3(uv, focal));
+
+    vec3 color = traceRay(ray);
+
+    fragmentColor = vec4(color, 1.0);
+}
