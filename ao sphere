@@ -1,0 +1,236 @@
+// ---------------------------------------------------------------
+// Raytracer de esferas con Ambient Occlusion analítico (IQ)
+// ---------------------------------------------------------------
+
+const float RayMin = 0.0001;
+const float RayMax = 3.4028235e38;
+const float InvalidIntersection = -1.0;
+
+const int SPHERE_COUNT = 56;
+
+// xyz = posicion, w = radio
+const vec4 spheres[SPHERE_COUNT] = vec4[SPHERE_COUNT](
+    vec4( 100.0, 100.0,-100.0,100.0),
+    vec4(-150.0,  50.0,   0.0, 75.0),
+    vec4(   0.0,-100.0, 150.0, 60.0),
+    vec4( 200.0,   0.0, 150.0, 80.0),
+    vec4(-200.0, 150.0,-200.0, 90.0),
+    vec4(   0.0, 200.0,   0.0,120.0),
+    vec4( 250.0,-120.0,-150.0, 50.0),
+    vec4(-280.0,-100.0, 120.0, 65.0),
+    vec4( 180.0, 180.0, 220.0, 70.0),
+    vec4(-100.0,-220.0,-100.0, 85.0),
+    vec4( 320.0,  50.0,-250.0, 55.0),
+    vec4(-350.0, 100.0, 200.0, 95.0),
+    vec4( 150.0,-250.0, 300.0, 60.0),
+    vec4(-250.0, 250.0,-300.0,110.0),
+    vec4( 350.0,-180.0, 100.0, 75.0),
+    vec4(-180.0, 300.0,-150.0, 45.0),
+    vec4(  80.0, 320.0, 260.0, 80.0),
+    vec4(-320.0,-250.0,-250.0,100.0),
+    vec4( 420.0,   0.0,   0.0, 60.0),
+    vec4(-420.0,   0.0,   0.0, 60.0),
+    vec4(   0.0, 420.0,   0.0, 60.0),
+    vec4(   0.0,-420.0,   0.0, 60.0),
+    vec4(   0.0,   0.0, 420.0, 60.0),
+    vec4(   0.0,   0.0,-420.0, 60.0),
+    vec4( 260.0, 260.0,-260.0, 70.0),
+    vec4(-260.0, 260.0, 260.0, 70.0),
+    vec4( 260.0,-260.0, 260.0, 70.0),
+    vec4(-260.0,-260.0,-260.0, 70.0),
+    vec4( 150.0, 150.0, 150.0, 45.0),
+    vec4(-150.0,-150.0,-150.0, 45.0),
+    vec4(-397.0,-353.0,-319.0, 22.0),
+    vec4(-344.0,-256.0,-188.0, 29.0),
+    vec4(-291.0,-159.0, -57.0, 36.0),
+    vec4(-238.0, -62.0,  74.0, 43.0),
+    vec4(-185.0,  35.0, 205.0, 50.0),
+    vec4(-132.0, 132.0, 336.0, 21.0),
+    vec4( -79.0, 229.0,-440.0, 28.0),
+    vec4( -26.0, 326.0,-309.0, 35.0),
+    vec4(  27.0, 423.0,-178.0, 42.0),
+    vec4(  80.0,-387.0, -47.0, 49.0),
+    vec4( 133.0,-290.0,  84.0, 20.0),
+    vec4( 186.0,-193.0, 215.0, 27.0),
+    vec4( 239.0, -96.0, 346.0, 34.0),
+    vec4( 292.0,   1.0,-430.0, 41.0),
+    vec4( 345.0,  98.0,-299.0, 48.0),
+    vec4( 398.0, 195.0,-168.0, 19.0),
+    vec4( 451.0, 292.0, -37.0, 26.0),
+    vec4(-403.0, 389.0,  94.0, 33.0),
+    vec4(-350.0,-421.0, 225.0, 40.0),
+    vec4(-297.0,-324.0, 356.0, 47.0),
+    vec4(-244.0,-227.0,-420.0, 18.0),
+    vec4(-191.0,-130.0,-289.0, 25.0),
+    vec4(-138.0, -33.0,-158.0, 32.0),
+    vec4( -85.0,  64.0, -27.0, 39.0),
+    vec4( -32.0, 161.0, 104.0, 46.0),
+    vec4(  21.0, 258.0, 235.0, 17.0)
+);
+
+struct source { vec3 position; vec3 direction; };
+struct sphere { vec3 position; float radius; };
+struct contact { sphere object; float intersection; };
+
+// ---------------------------------------------------------------
+// Intersección rayo-esfera
+// ---------------------------------------------------------------
+
+float getSphereIntersection(const in source ray, const in sphere s, const in float tMin, const in float tMax)
+{
+    vec3 oc = ray.position - s.position;
+
+    float a = dot(ray.direction, ray.direction);
+    float b = 2.0 * dot(oc, ray.direction);
+    float c = dot(oc, oc) - s.radius * s.radius;
+
+    float d = b * b - 4.0 * a * c;
+
+    if(d < 0.0) return InvalidIntersection;
+
+    float r = sqrt(d);
+
+    float t0 = (-b - r) / (2.0 * a);
+    float t1 = (-b + r) / (2.0 * a);
+
+    if(t0 > tMin && t0 < tMax) return t0;
+    if(t1 > tMin && t1 < tMax) return t1;
+
+    return InvalidIntersection;
+}
+
+void testSphere(const in source ray, const in sphere s, inout contact hit)
+{
+    float t = getSphereIntersection(ray, s, RayMin, RayMax);
+
+    if(t != InvalidIntersection && t < hit.intersection) hit = contact(s, t);
+}
+
+contact createContact()
+{
+    contact hit;
+
+    hit.intersection = RayMax;
+    hit.object.position = vec3(0.0);
+    hit.object.radius = 0.0;
+
+    return hit;
+}
+
+contact trace(const in source ray)
+{
+    contact hit = createContact();
+
+    for(int i = 0; i < SPHERE_COUNT; i++)
+    {
+        vec4 sd = spheres[i];
+        testSphere(ray, sphere(sd.xyz, sd.w), hit);
+    }
+
+    return hit;
+}
+
+// ---------------------------------------------------------------
+// Ambient Occlusion analítico esfera-esfera (Inigo Quilez)
+// ---------------------------------------------------------------
+
+float sphOcclusion(vec3 pos, vec3 nor, vec4 sph)
+{
+    vec3  di = sph.xyz - pos;
+    float l  = length(di);
+    float nl = dot(nor, di / l);
+    float h  = l / sph.w;
+    float h2 = h * h;
+    float k2 = 1.0 - h2 * nl * nl;
+
+    float res = max(0.0, nl) / h2;
+    if(k2 > 0.0) // aproximacion para penetracion
+    {
+        res = clamp(0.5 * (nl * h + 1.0) / h2, 0.0, 1.0);
+        res = sqrt(res * res * res);
+    }
+    return res;
+}
+
+// self: la esfera que generó el punto p, para no autoocluirse
+float computeAO(const in vec3 p, const in vec3 n, const in sphere self)
+{
+    float occlusion = 0.0;
+
+    for(int i = 0; i < SPHERE_COUNT; i++)
+    {
+        vec4 sd = spheres[i];
+
+        // salta la propia esfera impactada (misma posicion+radio)
+        if(sd.xyz == self.position && sd.w == self.radius) continue;
+
+        occlusion += sphOcclusion(p, n, sd);
+    }
+
+    return clamp(1.0 - occlusion, 0.0, 1.0);
+}
+
+// ---------------------------------------------------------------
+// Shading
+// ---------------------------------------------------------------
+
+vec3 getSphereAppearance(const in source ray, const in sphere s, const in float t)
+{
+    vec3 p = ray.position + t * ray.direction;
+    vec3 n = normalize(p - s.position);
+
+    vec3 view = normalize(ray.position - p);
+
+    float light = max(0.0, 0.5 + 0.5 * dot(view, n));
+    float ao = computeAO(p, n, s);
+
+    vec3 a = abs(n);
+    float m = max(a.x, max(a.y, a.z));
+    vec3 color = step(vec3(m), a);
+
+    return light * ao * color;
+}
+
+void traceRay(inout vec3 color, const in source ray)
+{
+    contact hit = trace(ray);
+
+    if(hit.intersection <= RayMin || hit.intersection >= RayMax) return;
+
+    color = getSphereAppearance(ray, hit.object, hit.intersection);
+}
+
+// ---------------------------------------------------------------
+// Camara / entrada principal (Shadertoy)
+// ---------------------------------------------------------------
+
+void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
+{
+    fragmentColor = vec4(0.0, 0.0, 0.0, 1.0);
+
+    const vec3 target = vec3(0.0);
+
+    float longitude = radians(45.0 + 45.0 * iTime);
+    float latitude  = radians(45.0 + 45.0 * sin(iTime));
+    float distance  = 500.0;
+
+    vec3 cameraPosition;
+    cameraPosition.x = distance * cos(latitude) * cos(longitude);
+    cameraPosition.y = distance * sin(latitude);
+    cameraPosition.z = distance * cos(latitude) * sin(longitude);
+
+    vec3 forward = normalize(target - cameraPosition);
+    vec3 right   = normalize(cross(forward, vec3(0.0, 1.0, 0.0)));
+    vec3 up      = cross(right, forward);
+
+    vec2 uv = (fragmentPosition - 0.5 * iResolution.xy) / iResolution.y;
+
+    source ray;
+    ray.position  = cameraPosition;
+    ray.direction = normalize(forward + uv.x * right + uv.y * up);
+
+    vec3 color = vec3(0.0);
+    traceRay(color, ray);
+
+    fragmentColor = vec4(color, 1.0);
+}
