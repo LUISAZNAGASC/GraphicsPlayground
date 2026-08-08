@@ -88,7 +88,7 @@ void renderContactAppearance(inout vec3 originalColor, const in source sampleSou
 {
     contact closestContact = getClosestContact(sampleSource, minimumIntersection, maximumIntersection);
     
-    if (closestContact.intersection <= MinimumIntersection || closestContact.intersection >= MaximumIntersection) return;
+    if (closestContact.intersection <= minimumIntersection || closestContact.intersection >= maximumIntersection) return;
     
     originalColor = getContactAppearance(sampleSource, closestContact);
 }
