@@ -1,0 +1,51 @@
+impact getSphereIntersection(
+    const in source sampleSource,
+    const in sphere sampleSphere,
+    const in float minimumIntersection,
+    const in float maximumIntersection)
+{
+    vec3 relativePosition = sampleSource.position - sampleSphere.position;
+
+    float a = dot(sampleSource.direction, sampleSource.direction);
+    float b = 2.0 * dot(relativePosition, sampleSource.direction);
+    float c = dot(relativePosition, relativePosition) -
+              sampleSphere.radius * sampleSphere.radius;
+
+    float discriminant = b * b - 4.0 * a * c;
+
+    if (discriminant < 0.0)
+        return missImpact();
+
+    float root = sqrt(discriminant);
+
+    float nearIntersection = (-b - root) / (2.0 * a);
+    float farIntersection  = (-b + root) / (2.0 * a);
+
+    float intersection = nearIntersection;
+
+    if (intersection < minimumIntersection ||
+        intersection > maximumIntersection)
+    {
+        intersection = farIntersection;
+    }
+
+    if (intersection < minimumIntersection ||
+        intersection > maximumIntersection)
+    {
+        return missImpact();
+    }
+
+    vec3 position =
+        sampleSource.position +
+        intersection * sampleSource.direction;
+
+    vec3 normal =
+        normalize(position - sampleSphere.position);
+
+    return impact(
+        intersection,
+        position,
+        normal,
+        true
+    );
+}
