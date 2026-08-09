@@ -4,7 +4,6 @@ struct contact { float intersection; vec3 position; vec3 direction; };
 
 struct sphere { vec3 position; float radius; };
 
-const float InvalidIntersection = -1.0;
 const float MinimumIntersection = 0.0001;
 const float MaximumIntersection = 10000.0;
 
@@ -29,7 +28,7 @@ float getSphereIntersection(const in source sampleSource, const in sphere sample
     float constantCoefficient = dot(relativePosition, relativePosition) - sampleSphere.radius * sampleSphere.radius;
     float quadraticDiscriminant = linearCoefficient * linearCoefficient - 4.0 * quadraticCoefficient * constantCoefficient;
 
-    if (quadraticDiscriminant < 0.0) return InvalidIntersection;
+    if (quadraticDiscriminant < 0.0) return maximumIntersection;
 
     float discriminantRadical = sqrt(quadraticDiscriminant);
 
@@ -41,14 +40,14 @@ float getSphereIntersection(const in source sampleSource, const in sphere sample
     if (incomingIntersection > minimumIntersection && incomingIntersection < maximumIntersection) return incomingIntersection;
     if (outgoingIntersection > minimumIntersection && outgoingIntersection < maximumIntersection) return outgoingIntersection;
 
-    return InvalidIntersection;
+    return maximumIntersection;
 }
 
 void trySphereIntersection(const in source sampleSource, const in sphere sampleSphere, const in float minimumIntersection, const in float maximumIntersection, inout contact sampleContact)
 {
     float sampleIntersection = getSphereIntersection(sampleSource, sampleSphere, minimumIntersection, maximumIntersection);
     
-    if (sampleIntersection == InvalidIntersection || sampleIntersection >= sampleContact.intersection) return;
+    if (sampleIntersection <= minimumIntersection || sampleIntersection >= maximumIntersection || sampleIntersection >= sampleContact.intersection) return;
     
     sampleContact.intersection = sampleIntersection;
     sampleContact.position = sampleSource.position + sampleContact.intersection * sampleSource.direction;
