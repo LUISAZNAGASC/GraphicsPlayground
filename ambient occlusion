@@ -1,0 +1,181 @@
+struct source { vec3 position; vec3 direction; };
+
+struct contact { float intersection; vec3 position; vec3 direction; int sphereIndex; };
+
+struct sphere { vec3 position; float radius; };
+
+const float MinimumIntersection = 0.0001;
+const float MaximumIntersection = 10000.0;
+
+const int SphereCapacity = 8;
+
+const sphere SphereCollection[SphereCapacity] = sphere[SphereCapacity](
+    sphere(vec3(-100.0, -100.0, -100.0), 150.0),
+    sphere(vec3(-100.0, -100.0, 100.0), 150.0),
+    sphere(vec3(100.0, -100.0, -100.0), 150.0),
+    sphere(vec3(100.0, -100.0, 100.0), 150.0),
+    sphere(vec3(-100.0, 100.0, -100.0), 200.0),
+    sphere(vec3(-100.0, 100.0, 100.0), 150.0),
+    sphere(vec3(100.0, 100.0, -100.0), 150.0),
+    
+    sphere(vec3(100.0, 100.0, 100.0), 150.0));
+
+float getSphereIntersection(const in source sampleSource, const in sphere sampleSphere, const in float minimumIntersection, const in float maximumIntersection)
+{
+    vec3 relativePosition = sampleSource.position - sampleSphere.position;
+
+    float quadraticCoefficient = dot(sampleSource.direction, sampleSource.direction);
+    float linearCoefficient = 2.0 * dot(relativePosition, sampleSource.direction);
+    float constantCoefficient = dot(relativePosition, relativePosition) - sampleSphere.radius * sampleSphere.radius;
+    float quadraticDiscriminant = linearCoefficient * linearCoefficient - 4.0 * quadraticCoefficient * constantCoefficient;
+
+    if (quadraticDiscriminant < 0.0) return maximumIntersection;
+
+    float discriminantRadical = sqrt(quadraticDiscriminant);
+
+    float negativeIntersection = (-linearCoefficient - discriminantRadical) / (2.0 * quadraticCoefficient);
+    float positiveIntersection = (-linearCoefficient + discriminantRadical) / (2.0 * quadraticCoefficient);
+    float incomingIntersection = min(negativeIntersection, positiveIntersection);
+    float outgoingIntersection = max(negativeIntersection, positiveIntersection);
+
+    if (incomingIntersection > minimumIntersection && incomingIntersection < maximumIntersection) return incomingIntersection;
+    if (outgoingIntersection > minimumIntersection && outgoingIntersection < maximumIntersection) return outgoingIntersection;
+
+    return maximumIntersection;
+}
+
+void trySphereIntersection(const in source sampleSource, const in sphere sampleSphere, const in int sampleSphereIndex, const in float minimumIntersection, const in float maximumIntersection, inout contact sampleContact)
+{
+    float sampleIntersection = getSphereIntersection(sampleSource, sampleSphere, minimumIntersection, maximumIntersection);
+    
+    if (sampleIntersection <= minimumIntersection || sampleIntersection >= maximumIntersection || sampleIntersection >= sampleContact.intersection) return;
+    
+    sampleContact.intersection = sampleIntersection;
+    sampleContact.position = sampleSource.position + sampleContact.intersection * sampleSource.direction;
+    sampleContact.direction = (sampleContact.position - sampleSphere.position) / sampleSphere.radius;
+    sampleContact.sphereIndex = sampleSphereIndex;
+}
+
+contact getClosestContact(const in source sampleSource, const in float minimumIntersection, const in float maximumIntersection)
+{
+    contact closestContact = contact(maximumIntersection, vec3(0.0), vec3(0.0), -1);
+    
+    for (int sphereIndex = 0; sphereIndex < SphereCapacity; sphereIndex++)
+    {
+        trySphereIntersection(sampleSource, SphereCollection[sphereIndex], sphereIndex, minimumIntersection, maximumIntersection, closestContact);
+    }
+    
+    return closestContact;
+}
+
+// --- AO analítico (Iñigo Quílez) ---
+
+float sphOcclusion(vec3 pos, vec3 nor, vec4 sph)
+{
+    vec3  di = sph.xyz - pos;
+    float l  = length(di);
+    float nl = dot(nor, di / l);
+    float h  = l / sph.w;
+    float h2 = h * h;
+    float k2 = 1.0 - h2 * nl * nl;
+
+    float res = max(0.0, nl) / h2;
+    if (k2 > 0.0) // approx. for penetration
+    {
+        res = clamp(0.5 * (nl * h +1.0) / h2, 0.0, 1.0);
+        res = sqrt(res * res * res);
+    }
+    return res;
+}
+
+float getAnalyticAmbientOcclusion(const in vec3 contactPosition, const in vec3 contactNormal, const in int ownSphereIndex)
+{
+    float occlusion = 0.0;
+
+    for (int sphereIndex = 0; sphereIndex < SphereCapacity; sphereIndex++)
+    {
+        if (sphereIndex == ownSphereIndex) continue; // no autooclusión
+
+        sphere occluderSphere = SphereCollection[sphereIndex];
+        vec4 sphereData = vec4(occluderSphere.position, occluderSphere.radius);
+        occlusion += sphOcclusion(contactPosition, contactNormal, sphereData);
+    }
+
+    return clamp(1.0 - occlusion, 0.0, 1.0);
+}
+
+// --- Fin AO analítico ---
+
+vec3 getContactAppearance(const in source sampleSource, const in contact sampleContact)
+{
+    vec3 observerDirection = normalize(sampleSource.position - sampleContact.position);
+    
+    float observerAlignment = max(0.0, 0.5 + 0.5 * dot(observerDirection, sampleContact.direction));
+    
+    vec3 directionalAlignment = abs(sampleContact.direction);
+    
+    float dominantAlignment = max(directionalAlignment.x, max(directionalAlignment.y, directionalAlignment.z));
+    
+    vec3 dominantAppearance = step(vec3(dominantAlignment), directionalAlignment);
+    
+    vec3 contactAppearance = observerAlignment * vec3(1.0, 0.0, 1.0);
+    
+    float ambientOcclusion = getAnalyticAmbientOcclusion(sampleContact.position, sampleContact.direction, sampleContact.sphereIndex);
+    contactAppearance *= ambientOcclusion;
+    
+    return contactAppearance;
+}
+
+/*vec3 getContactAppearance(const in source sampleSource, const in contact sampleContact)
+{
+    vec3 observerDirection = normalize(sampleSource.position - sampleContact.position);
+    
+    float observerAlignment = dot(observerDirection, sampleContact.direction);
+    
+    vec3 contactAppearance = vec3(max(0.0, 0.5 + 0.5 * observerAlignment));
+    
+    float ambientOcclusion = getAnalyticAmbientOcclusion(sampleContact.position, sampleContact.direction, sampleContact.sphereIndex);
+    contactAppearance *= ambientOcclusion;
+    
+    return contactAppearance;
+}*/
+
+void renderContactAppearance(inout vec3 originalColor, const in source sampleSource, const in float minimumIntersection, const in float maximumIntersection)
+{
+    contact closestContact = getClosestContact(sampleSource, minimumIntersection, maximumIntersection);
+    
+    if (closestContact.intersection <= minimumIntersection || closestContact.intersection >= maximumIntersection) return;
+    
+    originalColor = getContactAppearance(sampleSource, closestContact);
+}
+
+void mainImage(out vec4 fragmentColor, in vec2 fragmentCoordinates)
+{
+    fragmentColor = vec4(0.25, 0.25, 0.25, 1.0);
+    
+    const vec3 referencePosition = vec3(0.0);
+   
+    float orbitalLongitude = 45.0 + 45.0 * iTime;
+    float orbitalLatitude = 45.0;
+    float orbitalAltitude = 500.0;
+    vec3 orbitalCoordinates = vec3(radians(orbitalLongitude), radians(orbitalLatitude), orbitalAltitude);
+    vec3 orbitalDisplacement = vec3(0.0);
+    orbitalDisplacement.x = orbitalCoordinates.z * cos(orbitalCoordinates.y) * cos(orbitalCoordinates.x);
+    orbitalDisplacement.y = orbitalCoordinates.z * sin(orbitalCoordinates.y);
+    orbitalDisplacement.z = orbitalCoordinates.z * cos(orbitalCoordinates.y) * sin(orbitalCoordinates.x);
+    vec3 cameraPosition = referencePosition + orbitalDisplacement;
+   
+    const vec3 referenceUpward = vec3(0.0, 1.0, 0.0);
+    vec3 cameraForward = normalize(referencePosition - cameraPosition);
+    vec3 cameraRightward = normalize(cross(referenceUpward, cameraForward));
+    vec3 cameraUpward = normalize(cross(cameraForward, cameraRightward));
+    mat3 cameraOrientation = mat3(cameraRightward, cameraUpward, cameraForward);
+    vec2 projectionPosition = (2.0 * fragmentCoordinates - iResolution.xy) / min(iResolution.x, iResolution.y);
+    float projectionAngle = 60.0;
+    float projectionScale = 1.0 / tan(0.5 * radians(projectionAngle));
+    vec3 cameraDirection = normalize(cameraOrientation * vec3(projectionPosition, projectionScale));
+    
+    source cameraSource = source(cameraPosition, cameraDirection);
+    
+    renderContactAppearance(fragmentColor.rgb, cameraSource, MinimumIntersection, MaximumIntersection);
+}
