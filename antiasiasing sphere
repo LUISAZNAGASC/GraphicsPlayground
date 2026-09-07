@@ -125,19 +125,20 @@ void setFragmentContext(out vec4 fragmentColor, in vec2 fragmentCoordinates)
 
 void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
 {
-    const int antiAliasingSamples = 4;
+    const int sampleResolution = 4;
 
-    vec4 accumulatedColor = vec4(0.0);
-    vec4 sampleColor;
+    vec4 compositeColor = vec4(0.0);
+    vec4 primitiveColor = vec4(0.0);
 
-    for (int sampleX = 0; sampleX < antiAliasingSamples; sampleX++)
-    for (int sampleY = 0; sampleY < antiAliasingSamples; sampleY++)
+    for (int horizontalSample = 0; horizontalSample < sampleResolution; horizontalSample++)
+    for (int verticalSample = 0; verticalSample < sampleResolution; verticalSample++)
     {
-        vec2 sampleOffset = (vec2(float(sampleX), float(sampleY)) / float(antiAliasingSamples)) - 0.5;
+        vec2 samplePosition = vec2(float(horizontalSample), float(verticalSample)) + 0.5;
+        samplePosition = samplePosition / float(sampleResolution) - 0.5 + fragmentPosition;
         
-        setFragmentContext(sampleColor, fragmentPosition + sampleOffset);
-        accumulatedColor += sampleColor;
+        setFragmentContext(primitiveColor, samplePosition);
+        compositeColor  = compositeColor + primitiveColor;
     }
 
-    fragmentColor = accumulatedColor / float(antiAliasingSamples * antiAliasingSamples);
+    fragmentColor = compositeColor / float(sampleResolution * sampleResolution);
 }
