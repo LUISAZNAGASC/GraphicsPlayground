@@ -137,7 +137,8 @@ void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
         samplePosition = samplePosition / float(sampleResolution) - 0.5 + fragmentPosition;
         
         setFragmentContext(primitiveColor, samplePosition);
-        compositeColor  = compositeColor + primitiveColor;
+        
+        compositeColor = compositeColor + primitiveColor;
     }
 
     fragmentColor = compositeColor / float(sampleResolution * sampleResolution);
