@@ -92,7 +92,7 @@ void renderContactAppearance(inout vec3 originalColor, const in source sampleSou
     originalColor = getContactAppearance(sampleSource, closestContact);
 }
 
-void setFragmentContext(out vec4 fragmentColor, in vec2 fragmentCoordinates)
+void configureFragmentContext(out vec4 fragmentColor, in vec2 fragmentCoordinates)
 {
     fragmentColor = vec4(0.0, 0.0, 0.0, 1.0);
     
@@ -123,23 +123,23 @@ void setFragmentContext(out vec4 fragmentColor, in vec2 fragmentCoordinates)
     renderContactAppearance(fragmentColor.rgb, cameraSource, MinimumIntersection, MaximumIntersection);
 }
 
-void mainImage(out vec4 fragmentColor, in vec2 fragmentPosition)
+void mainImage(out vec4 fragmentColor, in vec2 fragmentCoordinates)
 {
-    const int sampleResolution = 4;
+    const int antialiasingFactor = 4;
 
     vec4 compositeColor = vec4(0.0);
     vec4 primitiveColor = vec4(0.0);
 
-    for (int horizontalSample = 0; horizontalSample < sampleResolution; horizontalSample++)
-    for (int verticalSample = 0; verticalSample < sampleResolution; verticalSample++)
+    for (int horizontalSample = 0; horizontalSample < antialiasingFactor; horizontalSample++)
+    for (int verticalSample = 0; verticalSample < antialiasingFactor; verticalSample++)
     {
-        vec2 samplePosition = vec2(float(horizontalSample), float(verticalSample)) + 0.5;
-        samplePosition = samplePosition / float(sampleResolution) - 0.5 + fragmentPosition;
+        vec2 sampleCoordinates = vec2(float(horizontalSample), float(verticalSample)) + 0.5;
+        sampleCoordinates = sampleCoordinates / float(antialiasingFactor) - 0.5 + fragmentCoordinates;
         
-        setFragmentContext(primitiveColor, samplePosition);
+        configureFragmentContext(primitiveColor, sampleCoordinates);
         
         compositeColor = compositeColor + primitiveColor;
     }
 
-    fragmentColor = compositeColor / float(sampleResolution * sampleResolution);
+    fragmentColor = compositeColor / float(antialiasingFactor * antialiasingFactor);
 }
