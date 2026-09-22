@@ -1,0 +1,74 @@
+bool tryAABBIntersection(
+    const in vec3 cameraPosition,
+    const in vec3 cameraDirection,
+    const in vec3 minimumExtents,
+    const in vec3 maximumExtents,
+    const in float minimumIntersection,
+    const in float maximumIntersection,
+    out float incomingIntersection,
+    out float outgoingIntersection)
+{
+    vec3 minimumComponent = (minimumExtents - cameraPosition) / cameraDirection;
+    vec3 maximumComponent = (maximumExtents - cameraPosition) / cameraDirection;
+    
+    vec3 incomingComponent = min(minimumComponent, maximumComponent);
+    vec3 outgoingComponent = max(minimumComponent, maximumComponent);
+    
+    incomingIntersection = max(max(incomingComponent.x, incomingComponent.y), incomingComponent.z);
+    outgoingIntersection = min(min(outgoingComponent.x, outgoingComponent.y), outgoingComponent.z);
+    
+    if (incomingIntersection > outgoingIntersection) return false;
+    
+    incomingIntersection = max(incomingIntersection, minimumIntersection);
+    outgoingIntersection = min(outgoingIntersection, maximumIntersection);
+    
+    return incomingIntersection <= outgoingIntersection;
+}
+
+void configureFragmentContext(out vec4 fragmentColor, in vec2 fragmentCoordinates)
+{
+    fragmentColor = vec4(0.0, 0.0, 0.0, 1.0);
+    
+    const vec3 referencePosition = vec3(0.0);
+   
+    float orbitalLongitude = 45.0 + 45.0 * iTime;
+    float orbitalLatitude = 45.0;
+    float orbitalAltitude = 500.0;
+    vec3 orbitalCoordinates = vec3(radians(orbitalLongitude), radians(orbitalLatitude), orbitalAltitude);
+    vec3 orbitalDisplacement = vec3(0.0);
+    orbitalDisplacement.x = orbitalCoordinates.z * cos(orbitalCoordinates.y) * cos(orbitalCoordinates.x);
+    orbitalDisplacement.y = orbitalCoordinates.z * sin(orbitalCoordinates.y);
+    orbitalDisplacement.z = orbitalCoordinates.z * cos(orbitalCoordinates.y) * sin(orbitalCoordinates.x);
+    vec3 cameraPosition = referencePosition + orbitalDisplacement;
+   
+    const vec3 referenceUpward = vec3(0.0, 1.0, 0.0);
+    vec3 cameraForward = normalize(referencePosition - cameraPosition);
+    vec3 cameraRightward = normalize(cross(referenceUpward, cameraForward));
+    vec3 cameraUpward = normalize(cross(cameraForward, cameraRightward));
+    mat3 cameraOrientation = mat3(cameraRightward, cameraUpward, cameraForward);
+    vec2 projectionPosition = (2.0 * fragmentCoordinates - iResolution.xy) / min(iResolution.x, iResolution.y);
+    float projectionAngle = 60.0;
+    float projectionScale = 1.0 / tan(0.5 * radians(projectionAngle));
+    vec3 cameraDirection = normalize(cameraOrientation * vec3(projectionPosition, projectionScale));
+}
+
+void mainImage(out vec4 fragmentColor, in vec2 fragmentCoordinates)
+{
+    const int antialiasingFactor = 4;
+
+    vec4 amountContribution = vec4(0.0);
+    vec4 sampleContribution = vec4(0.0);
+
+    for (int horizontalSample = 0; horizontalSample < antialiasingFactor; horizontalSample++)
+    for (int verticalSample = 0; verticalSample < antialiasingFactor; verticalSample++)
+    {
+        vec2 sampleCoordinates = vec2(float(horizontalSample), float(verticalSample)) + 0.5;
+        sampleCoordinates = sampleCoordinates / float(antialiasingFactor) - 0.5 + fragmentCoordinates;
+        
+        configureFragmentContext(sampleContribution, sampleCoordinates);
+        
+        amountContribution = amountContribution + sampleContribution;
+    }
+
+    fragmentColor = amountContribution / float(antialiasingFactor * antialiasingFactor);
+}
