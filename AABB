@@ -17,8 +17,6 @@ bool tryAABBIntersection(
     incomingIntersection = max(max(incomingComponent.x, incomingComponent.y), incomingComponent.z);
     outgoingIntersection = min(min(outgoingComponent.x, outgoingComponent.y), outgoingComponent.z);
     
-    if (incomingIntersection > outgoingIntersection) return false;
-    
     incomingIntersection = max(incomingIntersection, minimumIntersection);
     outgoingIntersection = min(outgoingIntersection, maximumIntersection);
     
