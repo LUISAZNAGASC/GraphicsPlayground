@@ -28,26 +28,6 @@ bool tryAABBIntersection(
     return incomingIntersection <= outgoingIntersection;
 }
 
-vec3 getSurfaceAppearance(const in vec3 samplePosition, const in vec3 minimumExtension, const in vec3 maximumExtension, const float segmentThickness)
-{
-    vec3 relativeMinimum = abs(samplePosition - minimumExtension);
-    vec3 relativeMaximum = abs(samplePosition - maximumExtension);
-    
-    vec3 segmentDistance = min(relativeMinimum, relativeMaximum);
-    
-    float segmentXCoverage = step(segmentDistance.x, segmentThickness);
-    float segmentYCoverage = step(segmentDistance.y, segmentThickness);
-    float segmentZCoverage = step(segmentDistance.z, segmentThickness);
-    
-    float segmentXSelection = segmentYCoverage * segmentZCoverage;
-    float segmentYSelection = segmentXCoverage * segmentZCoverage;
-    float segmentZSelection = segmentXCoverage * segmentYCoverage;
-    
-    float segmentSelection = max(max(segmentXSelection, segmentYSelection), segmentZSelection);
-    
-    return vec3(1.0 - segmentSelection);
-}
-
 void configureFragmentContext(out vec4 fragmentColor, in vec2 fragmentCoordinates)
 {
     fragmentColor = vec4(0.0, 0.0, 0.0, 1.0);
