@@ -1,8 +1,3 @@
-const vec3 MinimumVolume = vec3(0.0);
-const vec3 MaximumVolume = vec3(64.0);
-
-const uint ElementDimension = 5u;
-
 bool tryAABBIntersection(
     const in vec3 cameraPosition,
     const in vec3 cameraDirection,
