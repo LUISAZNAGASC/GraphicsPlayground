@@ -8,10 +8,8 @@ bool tryAABBIntersection(
     out float incomingIntersection,
     out float outgoingIntersection)
 {
-    vec3 inverseDirection = 1.0 / cameraDirection;
-
-    vec3 minimumComponent = (minimumExtents - cameraPosition) / inverseDirection;
-    vec3 maximumComponent = (maximumExtents - cameraPosition) / inverseDirection;
+    vec3 minimumComponent = (minimumExtents - cameraPosition) / cameraDirection;
+    vec3 maximumComponent = (maximumExtents - cameraPosition) / cameraDirection;
     
     vec3 incomingComponent = min(minimumComponent, maximumComponent);
     vec3 outgoingComponent = max(minimumComponent, maximumComponent);
