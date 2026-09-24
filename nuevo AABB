@@ -1,26 +1,27 @@
-bool tryAABBIntersection(
-    const in vec3 cameraPosition,
-    const in vec3 cameraDirection,
-    const in vec3 minimumExtents,
-    const in vec3 maximumExtents,
-    const in float minimumIntersection,
-    const in float maximumIntersection,
-    out float incomingIntersection,
-    out float outgoingIntersection)
+struct source { vec3 position; vec3 direction; };
+
+struct volume { vec3 position; vec3 extension; };
+
+struct impact { float incoming; float outgoing; bool detection; };
+
+impact getAABBImpact(const in source sampleSource, const in volume sampleVolume, const in float minimumIntersection, const in float maximumIntersection)
 {
-    vec3 minimumComponent = (minimumExtents - cameraPosition) / cameraDirection;
-    vec3 maximumComponent = (maximumExtents - cameraPosition) / cameraDirection;
+    vec3 minimumExtension = sampleVolume.position - 0.5 * sampleVolume.extension;
+    vec3 maximumExtension = sampleVolume.position + 0.5 * sampleVolume.extension;
+
+    vec3 minimumComponent = (minimumExtension - sampleSource.position) / sampleSource.direction;
+    vec3 maximumComponent = (maximumExtension - sampleSource.position) / sampleSource.direction;
     
     vec3 incomingComponent = min(minimumComponent, maximumComponent);
     vec3 outgoingComponent = max(minimumComponent, maximumComponent);
     
-    incomingIntersection = max(max(incomingComponent.x, incomingComponent.y), incomingComponent.z);
-    outgoingIntersection = min(min(outgoingComponent.x, outgoingComponent.y), outgoingComponent.z);
+    float incomingIntersection = max(max(incomingComponent.x, incomingComponent.y), incomingComponent.z);
+    float outgoingIntersection = min(min(outgoingComponent.x, outgoingComponent.y), outgoingComponent.z);
     
     incomingIntersection = max(incomingIntersection, minimumIntersection);
     outgoingIntersection = min(outgoingIntersection, maximumIntersection);
     
-    return incomingIntersection <= outgoingIntersection;
+    return impact(incomingIntersection, outgoingIntersection, incomingIntersection <= outgoingIntersection);
 }
 
 void configureFragmentContext(out vec4 fragmentColor, in vec2 fragmentCoordinates)
