@@ -49,6 +49,8 @@ void configureFragmentContext(out vec4 fragmentColor, in vec2 fragmentCoordinate
     float projectionAngle = 60.0;
     float projectionScale = 1.0 / tan(0.5 * radians(projectionAngle));
     vec3 cameraDirection = normalize(cameraOrientation * vec3(projectionPosition, projectionScale));
+    
+    source cameraSource = source(cameraPosition, cameraDirection);
 }
 
 void mainImage(out vec4 fragmentColor, in vec2 fragmentCoordinates)
