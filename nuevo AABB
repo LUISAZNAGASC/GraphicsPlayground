@@ -6,8 +6,8 @@ struct impact { float incoming; float outgoing; bool detection; };
 
 impact getAABBImpact(const in source sampleSource, const in volume sampleVolume, const in float minimumIntersection, const in float maximumIntersection)
 {
-    vec3 minimumExtension = sampleVolume.position - 0.5 * sampleVolume.extension;
-    vec3 maximumExtension = sampleVolume.position + 0.5 * sampleVolume.extension;
+    vec3 minimumExtension = sampleVolume.position - sampleVolume.extension;
+    vec3 maximumExtension = sampleVolume.position + sampleVolume.extension;
 
     vec3 minimumComponent = (minimumExtension - sampleSource.position) / sampleSource.direction;
     vec3 maximumComponent = (maximumExtension - sampleSource.position) / sampleSource.direction;
