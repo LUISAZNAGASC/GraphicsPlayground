@@ -26,7 +26,7 @@ impact getVolumeImpact(const in source sampleSource, const in volume sampleVolum
     return impact(incomingIntersection, outgoingIntersection, incomingIntersection <= outgoingIntersection);
 }
 
-void configureFragmentContext(out vec4 fragmentColor, in vec2 fragmentCoordinates)
+void mainImage(out vec4 fragmentColor, in vec2 fragmentCoordinates)
 {
     fragmentColor = vec4(0.0, 0.0, 0.0, 1.0);
     
@@ -53,25 +53,4 @@ void configureFragmentContext(out vec4 fragmentColor, in vec2 fragmentCoordinate
     vec3 cameraDirection = normalize(cameraOrientation * vec3(projectionPosition, projectionScale));
     
     source cameraSource = source(cameraPosition, cameraDirection);
-}
-
-void mainImage(out vec4 fragmentColor, in vec2 fragmentCoordinates)
-{
-    const int antialiasingFactor = 4;
-
-    vec4 amountContribution = vec4(0.0);
-    vec4 sampleContribution = vec4(0.0);
-
-    for (int horizontalSample = 0; horizontalSample < antialiasingFactor; horizontalSample++)
-    for (int verticalSample = 0; verticalSample < antialiasingFactor; verticalSample++)
-    {
-        vec2 sampleCoordinates = vec2(float(horizontalSample), float(verticalSample)) + 0.5;
-        sampleCoordinates = sampleCoordinates / float(antialiasingFactor) - 0.5 + fragmentCoordinates;
-        
-        configureFragmentContext(sampleContribution, sampleCoordinates);
-        
-        amountContribution = amountContribution + sampleContribution;
-    }
-
-    fragmentColor = amountContribution / float(antialiasingFactor * antialiasingFactor);
 }
