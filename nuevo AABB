@@ -1,16 +1,18 @@
 struct source { vec3 position; vec3 direction; };
 
-struct volume { vec3 position; vec3 extension; };
+struct volume { vec3 position; mat3 orientation; ivec3 resolution; uint dimension; };
 
 struct impact { float incoming; float outgoing; bool detection; };
 
-impact getAABBImpact(const in source sampleSource, const in volume sampleVolume, const in float minimumIntersection, const in float maximumIntersection)
+impact getVolumeImpact(const in source sampleSource, const in volume sampleVolume, const in float minimumIntersection, const in float maximumIntersection)
 {
-    vec3 minimumExtension = sampleVolume.position - sampleVolume.extension;
-    vec3 maximumExtension = sampleVolume.position + sampleVolume.extension;
+    mat3 relativeOrientation = transpose(sampleVolume.orientation);
+    vec3 relativePosition = relativeOrientation * (sampleSource.position - sampleVolume.position);
+    vec3 relativeDirection = relativeOrientation * sampleSource.direction;
+    vec3 relativeExtension = 0.5 * float(sampleVolume.dimension) * vec3(sampleVolume.resolution);
 
-    vec3 minimumComponent = (minimumExtension - sampleSource.position) / sampleSource.direction;
-    vec3 maximumComponent = (maximumExtension - sampleSource.position) / sampleSource.direction;
+    vec3 minimumComponent = (-relativePosition - relativeExtension) / relativeDirection;
+    vec3 maximumComponent = (-relativePosition + relativeExtension) / relativeDirection;
     
     vec3 incomingComponent = min(minimumComponent, maximumComponent);
     vec3 outgoingComponent = max(minimumComponent, maximumComponent);
