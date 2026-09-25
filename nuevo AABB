@@ -4,6 +4,18 @@ struct volume { vec3 position; mat3 orientation; ivec3 resolution; uint dimensio
 
 struct impact { float incoming; float outgoing; bool detection; };
 
+mat3 getEulerOrientation(const in vec3 sampleRotation)
+{
+    vec3 sampleDeviation = sin(radians(sampleRotation));
+    vec3 sampleRetention = cos(radians(sampleRotation));
+    
+    mat3 pitchOrientation = mat3(1.0, 0.0, 0.0, 0.0, sampleRetention.x, -sampleDeviation.x, 0.0, sampleDeviation.x, sampleRetention.x);
+    mat3 yawOrientation = mat3(sampleRetention.y, 0.0, sampleDeviation.y, 0.0, 1.0, 0.0, -sampleDeviation.y, 0.0, sampleRetention.y);
+    mat3 rollOrientation = mat3(sampleRetention.z, -sampleDeviation.z, 0.0, sampleDeviation.z, sampleRetention.z, 0.0, 0.0, 0.0, 1.0);
+    
+    return rollOrientation * yawOrientation * pitchOrientation;
+}
+
 impact getVolumeImpact(const in source sampleSource, const in volume sampleVolume, const in float minimumIntersection, const in float maximumIntersection)
 {
     mat3 relativeOrientation = transpose(sampleVolume.orientation);
