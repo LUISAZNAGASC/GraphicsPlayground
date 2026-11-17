@@ -90,7 +90,7 @@ struct source { vec3 position; vec3 direction; float minimum; float maximum; };
 
 struct sphere { vec3 position; float radius; };
 
-float getSphereIntersection(const in source sampleSource, const in sphere sampleSphere)
+bool trySphereIntersection(const in source sampleSource, const in sphere sampleSphere, out float sample01Intersection)
 {
     vec3 relativePosition = sampleSource.position - sampleSphere.position;
 
@@ -99,7 +99,12 @@ float getSphereIntersection(const in source sampleSource, const in sphere sample
     float constantCoefficient = dot(relativePosition, relativePosition) - sampleSphere.radius * sampleSphere.radius;
     float quadraticDiscriminant = linearCoefficient * linearCoefficient - 4.0 * quadraticCoefficient * constantCoefficient;
 
-    if (quadraticDiscriminant < 0.0) return sampleSource.maximum;
+    if (quadraticDiscriminant < 0.0)
+    {
+        sample01Intersection = sampleSource.maximum;
+
+        return false;
+    }
 
     float discriminantRadical = sqrt(quadraticDiscriminant);
 
@@ -108,9 +113,20 @@ float getSphereIntersection(const in source sampleSource, const in sphere sample
     float incomingIntersection = min(negativeIntersection, positiveIntersection);
     float outgoingIntersection = max(negativeIntersection, positiveIntersection);
 
-    if (incomingIntersection >= sampleSource.minimum && incomingIntersection <= sampleSource.maximum) return incomingIntersection;
-    if (outgoingIntersection >= sampleSource.minimum && outgoingIntersection <= sampleSource.maximum) return outgoingIntersection;
+    if (incomingIntersection >= sampleSource.minimum && incomingIntersection <= sampleSource.maximum)
+    {
+         sample01Intersection = incomingIntersection;
 
-    return sampleSource.maximum;
+         return true;
+    }
+
+    if (outgoingIntersection >= sampleSource.minimum && outgoingIntersection <= sampleSource.maximum)
+    {
+        sample01Intersection = outgoingIntersection;
+
+        return true;
+    }
+
+    return false;
 }
 ```
