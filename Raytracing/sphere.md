@@ -1,7 +1,7 @@
 ## 0 - VARIABLE DEFINITIONS
 
 | Variable | Definition |
-|:---:|:---:|
+|:----------:|:----------:|
 | WP | World Position |
 | RO | Ray Origin |
 | RD | Ray Direction |
