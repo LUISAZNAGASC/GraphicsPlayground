@@ -1,18 +1,8 @@
 ## 0 - VARIABLE DEFINITIONS
 
-| Variable | Definition |
-|:----------:|:----------:|
-| WP | World Position |
-| RO | Ray Origin |
-| RD | Ray Direction |
-| ID | Intersection Distance |
-| SP | Sphere Position |
-| SR | Sphere Radius |
-| RP | Relative Position |
-| QC | Quadratic Coefficient |
-| LC | Linear Coefficient |
-| CC | Constant Coefficient |
-| NC | Numeric Constant |
+$$
+WP : WORLD POSITION ; RO : RAY ORIGIN ; RD : RAY DIRECTION ; ID : INTERSECTION DISTANCE ; SP : SPHERE POSITION ; SR : SPHERE RADIUS ; RP : RELATIVE POSITION ; QC : QUADRATIC COEFFICIENT ; LC : LINEAR COEFFICIENT ; CC : CONSTANT COEFFICIENT ; NC : NUMERIC CONSTANT
+$$
 
 ## 1 - RAY DEFINITION
 
