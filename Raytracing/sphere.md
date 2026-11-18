@@ -1,6 +1,5 @@
 ## 0 - VARIABLE DEFINITIONS
 
-$$
 - **WP** : World Position
 - **RO** : Ray Origin
 - **RD** : Ray Direction
@@ -12,7 +11,6 @@ $$
 - **LC** : Linear Coefficient
 - **CC** : Constant Coefficient
 - **NC** : Numeric Constant
-$$
 
 ## 1 - RAY DEFINITION
 
