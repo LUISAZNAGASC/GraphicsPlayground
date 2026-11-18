@@ -1,4 +1,4 @@
-# 0 - VARIABLE DEFINITIONS
+## 0 - VARIABLE DEFINITIONS
 
 | Variable | Definition |
 |:---:|:---|
@@ -20,13 +20,13 @@ $$
 WP = RO + RD \cdot ID
 $$
 
-# 2 - SPHERE DEFINITION
+## 2 - SPHERE DEFINITION
 
 $$
 (WP - SP) \cdot (WP - SP) = (SR)^2
 $$
 
-# 3 - SPHERE SUBSTITUTION
+## 3 - SPHERE SUBSTITUTION
 
 $$
 WP = RO + RD \cdot ID
@@ -36,7 +36,7 @@ $$
 (RO + RD \cdot ID - SP) \cdot (RO + RD \cdot ID - SP) = (SR)^2
 $$
 
-# 4 - RELATIVE VECTOR DEFINITION
+## 4 - RELATIVE VECTOR DEFINITION
 
 $$
 RP = RO - SP
@@ -46,7 +46,7 @@ $$
 (RP + RD \cdot ID) \cdot (RP + RD \cdot ID) = (SR)^2
 $$
 
-# 5 - EXPANSION OF THE QUADRATIC FORM
+## 5 - EXPANSION OF THE QUADRATIC FORM
 
 $$
 (RP \cdot RP) + 2 \cdot (RP \cdot RD) \cdot ID + (RD \cdot RD) \cdot ID^2 = (SR)^2
@@ -56,7 +56,7 @@ $$
 (RD \cdot RD) \cdot ID^2 + 2 \cdot (RP \cdot RD) \cdot ID + (RP \cdot RP) - (SR)^2 = 0
 $$
 
-# 6 - COEFFICIENT DEFINITIONS
+## 6 - COEFFICIENT DEFINITIONS
 
 $$
 QC = (RD \cdot RD)
@@ -70,7 +70,7 @@ $$
 CC = (RP \cdot RP) - (SR)^2
 $$
 
-# 7 - QUADRATIC EQUATION DEFINITION
+## 7 - QUADRATIC EQUATION DEFINITION
 
 $$
 QC \cdot ID^2 + LC \cdot ID + CC = 0
@@ -84,7 +84,7 @@ $$
 ID^2 + \frac{LC}{QC} \cdot ID + \frac{CC}{QC} = 0
 $$
 
-# 8 - COMPLETING THE SQUARE
+## 8 - COMPLETING THE SQUARE
 
 $$
 (ID + NC)^2 = ID^2 + 2 \cdot NC \cdot ID + NC^2
@@ -152,7 +152,7 @@ $$
 ID_2 = \frac{-LC + \sqrt{LC^2 - 4 \cdot QC \cdot CC}}{2 \cdot QC}
 $$
 
-# SOURCE CODE
+## SOURCE CODE
 
 ```cpp
 struct source { vec3 position; vec3 direction; float minimum; float maximum; };
