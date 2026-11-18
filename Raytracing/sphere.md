@@ -1,6 +1,6 @@
 ```cpp
 // ==================================================================================================
-// 0 - DEFINITION OF THE VARIABLES USED IN THE DERIVATION
+// 0.0 - DEFINITION OF THE VARIABLES USED IN THE DERIVATION
 // ==================================================================================================
 //
 // WP = World Position
@@ -16,7 +16,7 @@
 // AC = Auxiliary Constant
 //
 // ==================================================================================================
-// 1 - MATHEMATICAL DEFINITION OF THE RAY EQUATION
+// 1.0 - MATHEMATICAL DEFINITION OF THE RAY EQUATION
 // ==================================================================================================
 //
 // Define the ray using its origin and direction:
@@ -24,7 +24,7 @@
 // WP = RO + RD * ID;
 //
 // ==================================================================================================
-// 2 - MATHEMATICAL DEFINITION OF THE SPHERE EQUATION
+// 2.0 - MATHEMATICAL DEFINITION OF THE SPHERE EQUATION
 // ==================================================================================================
 //
 // Define the sphere using its center and radius:
@@ -32,7 +32,7 @@
 // (WP - SP) · (WP - SP) = (SR)^2.0;
 //
 // ==================================================================================================
-// 3 - SUBSTITUTION OF THE RAY EQUATION INTO THE SPHERE EQUATION
+// 3.0 - SUBSTITUTION OF THE RAY EQUATION INTO THE SPHERE EQUATION
 // ==================================================================================================
 //
 // Substitute the ray equation into the sphere equation:
@@ -40,7 +40,7 @@
 // ((RO + RD * ID) - SP) · ((RO + RD * ID) - SP) = (SR)^2.0;
 //
 // ==================================================================================================
-// 4 - DEFINITION OF THE RELATIVE POSITION VECTOR
+// 4.0 - DEFINITION OF THE RELATIVE POSITION VECTOR
 // ==================================================================================================
 //
 // Define the vector from the sphere center to the ray origin:
@@ -52,7 +52,7 @@
 // (RP + RD * ID) · (RP + RD * ID) = (SR)^2.0;
 //
 // ==================================================================================================
-// 5 - EXPANSION AND REARRANGEMENT OF THE QUADRATIC FORM
+// 5.0 - EXPANSION AND REARRANGEMENT OF THE QUADRATIC FORM
 // ==================================================================================================
 //
 // Expand the dot product into individual dot products:
@@ -64,7 +64,7 @@
 // (RD · RD) * (ID)^2.0 + 2.0 * (RP · RD) * ID + (RP · RP) - (SR)^2.0 = 0.0;
 //
 // ==================================================================================================
-// 6 - IDENTIFICATION OF THE QUADRATIC EQUATION COEFFICIENTS
+// 6.0 - IDENTIFICATION OF THE QUADRATIC EQUATION COEFFICIENTS
 // ==================================================================================================
 //
 // Identify the quadratic, linear, and constant coefficients:
@@ -74,7 +74,7 @@
 // CC = (RP · RP) - (SR)^2.0;
 //
 // ==================================================================================================
-// 7 - FORMULATION OF THE STANDARD QUADRATIC EQUATION
+// 7.0 - FORMULATION OF THE STANDARD QUADRATIC EQUATION
 // ==================================================================================================
 //
 // Express the intersection equation in standard quadratic form:
@@ -86,7 +86,7 @@
 // (ID)^2.0 + (LC / QC) * ID + CC / QC = 0.0;
 //
 // ==================================================================================================
-// 8 - TRANSFORMATION OF THE QUADRATIC EQUATION BY COMPLETING THE SQUARE
+// 8.0 - TRANSFORMATION OF THE QUADRATIC EQUATION BY COMPLETING THE SQUARE
 // ==================================================================================================
 //
 // Expand the binomial square into its individual terms:
@@ -110,7 +110,7 @@
 // (ID + AC)^2.0 = -CC / QC + (AC)^2.0;
 //
 // ==================================================================================================
-// 9 - DERIVATION OF THE RAY-SPHERE INTERSECTION SOLUTIONS
+// 9.0 - DERIVATION OF THE RAY-SPHERE INTERSECTION SOLUTIONS
 // ==================================================================================================
 //
 // Take the square root of both sides to obtain both solutions:
