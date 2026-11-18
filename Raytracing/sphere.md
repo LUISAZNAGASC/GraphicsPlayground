@@ -16,141 +16,165 @@
 
 # 1 - RAY DEFINITION
 
-$$
-WP = RO + RD \cdot ID
-$$
+\[
+\Large
+WP = RO + RD \cdot ID;
+\]
 
 # 2 - SPHERE DEFINITION
 
-$$
-(WP - SP) \cdot (WP - SP) = (SR)^2
-$$
+\[
+\Large
+(WP - SP) \cdot (WP - SP) = (SR)^{2.0};
+\]
 
 # 3 - SPHERE SUBSTITUTION
 
-$$
-WP = RO + RD \cdot ID
-$$
+\[
+\Large
+WP = RO + RD \cdot ID;
+\]
 
-$$
-(RO + RD \cdot ID - SP) \cdot (RO + RD \cdot ID - SP) = (SR)^2
-$$
+\[
+\Large
+(RO + RD \cdot ID - SP) \cdot (RO + RD \cdot ID - SP) = (SR)^{2.0};
+\]
 
 # 4 - RELATIVE VECTOR DEFINITION
 
-$$
-RP = RO - SP
-$$
+\[
+\Large
+RP = RO - SP;
+\]
 
-$$
-(RP + RD \cdot ID) \cdot (RP + RD \cdot ID) = (SR)^2
-$$
+\[
+\Large
+(RP + RD \cdot ID) \cdot (RP + RD \cdot ID) = (SR)^{2.0};
+\]
 
 # 5 - EXPANSION OF THE QUADRATIC FORM
 
-$$
-(RP \cdot RP) + 2 \cdot (RP \cdot RD) \cdot ID + (RD \cdot RD) \cdot ID^2 = (SR)^2
-$$
+\[
+\Large
+(RP \cdot RP) + 2.0 \cdot (RP \cdot RD) \cdot ID + (RD \cdot RD) \cdot (ID)^{2.0} = (SR)^{2.0};
+\]
 
-$$
-(RD \cdot RD) \cdot ID^2 + 2 \cdot (RP \cdot RD) \cdot ID + (RP \cdot RP) - (SR)^2 = 0
-$$
+\[
+\Large
+(RD \cdot RD) \cdot (ID)^{2.0} + 2.0 \cdot (RP \cdot RD) \cdot ID + (RP \cdot RP) - (SR)^{2.0} = 0.0;
+\]
 
 # 6 - COEFFICIENT DEFINITIONS
 
-$$
-QC = (RD \cdot RD)
-$$
+\[
+\Large
+QC = (RD \cdot RD);
+\]
 
-$$
-LC = 2 \cdot (RP \cdot RD)
-$$
+\[
+\Large
+LC = 2.0 \cdot (RP \cdot RD);
+\]
 
-$$
-CC = (RP \cdot RP) - (SR)^2
-$$
+\[
+\Large
+CC = (RP \cdot RP) - (SR)^{2.0};
+\]
 
 # 7 - QUADRATIC EQUATION DEFINITION
 
-$$
-QC \cdot ID^2 + LC \cdot ID + CC = 0
-$$
+\[
+\Large
+QC \cdot (ID)^{2.0} + LC \cdot ID + CC = 0.0;
+\]
 
-$$
-\frac{QC \cdot ID^2 + LC \cdot ID + CC}{QC} = 0
-$$
+\[
+\Large
+\frac{QC \cdot (ID)^{2.0} + LC \cdot ID + CC}{QC} = 0.0;
+\]
 
-$$
-ID^2 + \frac{LC}{QC} \cdot ID + \frac{CC}{QC} = 0
-$$
+\[
+\Large
+(ID)^{2.0} + \frac{LC}{QC} \cdot ID + \frac{CC}{QC} = 0.0;
+\]
 
 # 8 - COMPLETING THE SQUARE
 
-$$
-(ID + NC)^2 = ID^2 + 2 \cdot NC \cdot ID + NC^2
-$$
+\[
+\Large
+(ID + NC)^{2.0} = (ID)^{2.0} + 2.0 \cdot NC \cdot ID + (NC)^{2.0};
+\]
 
-$$
-2 \cdot NC \cdot ID = \frac{LC}{QC} \cdot ID
-$$
+\[
+\Large
+2.0 \cdot NC \cdot ID = \frac{LC}{QC};
+\]
 
-$$
-2 \cdot NC = \frac{LC}{QC}
-$$
+\[
+\Large
+2.0 \cdot NC = \frac{LC}{QC};
+\]
 
-$$
-NC = \frac{LC}{2 \cdot QC}
-$$
+\[
+\Large
+NC = \frac{LC}{2.0 \cdot QC};
+\]
 
-$$
-ID^2 + 2 \cdot NC \cdot ID + \frac{CC}{QC} = 0
-$$
+\[
+\Large
+(ID)^{2.0} + 2.0 \cdot NC \cdot ID + \frac{CC}{QC} = 0.0;
+\]
 
-$$
-ID^2 + 2 \cdot NC \cdot ID = -\frac{CC}{QC}
-$$
+\[
+\Large
+(ID)^{2.0} + 2.0 \cdot NC \cdot ID = -\frac{CC}{QC};
+\]
 
-$$
-(ID + NC)^2 = -\frac{CC}{QC} + NC^2
-$$
+\[\Large
+(ID + NC)^{2.0} = -\frac{CC}{QC} + (NC)^{2.0};
+\]
 
 # 9 - FINAL SOLUTION
 
-$$
-ID + NC = -\sqrt{-\frac{CC}{QC} + NC^2}
-$$
+\[
+\Large
+ID + NC = -\left(-\frac{CC}{QC} + (NC)^{2.0}\right)^{0.5};
+\]
 
-$$
-ID + NC = +\sqrt{-\frac{CC}{QC} + NC^2}
-$$
+\[
+\Large
+ID + NC = +\left(-\frac{CC}{QC} + (NC)^{2.0}\right)^{0.5};
+\]
 
-$$
-ID = -NC - \sqrt{-\frac{CC}{QC} + NC^2}
-$$
+\[
+\Large
+ID = -NC - \left(-\frac{CC}{QC} + (NC)^{2.0}\right)^{0.5};
+\]
 
-$$
-ID = -NC + \sqrt{-\frac{CC}{QC} + NC^2}
-$$
+\[
+\Large
+ID = -NC + \left(-\frac{CC}{QC} + (NC)^{2.0}\right)^{0.5};
+\]
 
-Substituting the value of NC:
+\[
+\Large
+ID = -\frac{LC}{2.0 \cdot QC} - \left(\left(\frac{LC}{2.0 \cdot QC}\right)^{2.0} - \frac{CC}{QC}\right)^{0.5};
+\]
 
-$$
-ID = -\frac{LC}{2 \cdot QC} - \sqrt{\left(\frac{LC}{2 \cdot QC}\right)^2 - \frac{CC}{QC}}
-$$
+\[
+\Large
+ID = -\frac{LC}{2.0 \cdot QC} + \left(\left(\frac{LC}{2.0 \cdot QC}\right)^{2.0} - \frac{CC}{QC}\right)^{0.5};
+\]
 
-$$
-ID = -\frac{LC}{2 \cdot QC} + \sqrt{\left(\frac{LC}{2 \cdot QC}\right)^2 - \frac{CC}{QC}}
-$$
+\[
+\Large
+ID = \frac{-LC - (LC^{2.0} - 4.0 \cdot QC \cdot CC)^{0.5}}{2.0 \cdot QC};
+\]
 
-Simplifying:
-
-$$
-ID_1 = \frac{-LC - \sqrt{LC^2 - 4 \cdot QC \cdot CC}}{2 \cdot QC}
-$$
-
-$$
-ID_2 = \frac{-LC + \sqrt{LC^2 - 4 \cdot QC \cdot CC}}{2 \cdot QC}
-$$
+\[
+\Large
+ID = \frac{-LC + (LC^{2.0} - 4.0 \cdot QC \cdot CC)^{0.5}}{2.0 \cdot QC};
+\]
 
 # SOURCE CODE
 
