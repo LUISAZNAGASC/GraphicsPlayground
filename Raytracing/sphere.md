@@ -1,6 +1,5 @@
 ## 0 - VARIABLE DEFINITIONS
 
-$$
 | Variable | Definition |
 |:---:|:---:|
 | WP | World Position |
@@ -14,7 +13,6 @@ $$
 | LC | Linear Coefficient |
 | CC | Constant Coefficient |
 | NC | Numeric Constant |
-$$
 
 ## 1 - RAY DEFINITION
 
