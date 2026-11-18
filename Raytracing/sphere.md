@@ -14,7 +14,7 @@
 | \(CC\) | Constant Coefficient |
 | \(NC\) | Numeric Constant |
 
-# 1 - RAY DEFINITION
+## 1 - RAY DEFINITION
 
 $$
 WP = RO + RD \cdot ID
