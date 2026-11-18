@@ -16,8 +16,7 @@
 
 # 1 - RAY DEFINITION
 
-\[
-\Large
+[\Large
 WP = RO + RD \cdot ID;
 \]
 
