@@ -139,7 +139,7 @@ struct sphere { vec3 position; float radius; };
 
 const float SENTINEL_INTERSECTION = 3.402823466e+38;
 
-// Case 1: Check whether either intersection lies within the source interval.
+// Case 1: Result is a boolean: is there a hit within the interval?
 bool trySphereIntersection(const in source sampleSource, const in sphere sampleSphere)
 {
     vec3 relativePosition = sampleSource.position - sampleSphere.position;
@@ -174,7 +174,7 @@ bool trySphereIntersection(const in source sampleSource, const in sphere sampleS
     return false;
 }
 
-// Case 2: Return the nearest intersection within the source interval, or SENTINEL_INTERSECTION if neither intersection is valid.
+// Case 2: Result is a single distance: the nearest hit within the interval.
 void trySphereIntersection(const in source sampleSource, const in sphere sampleSphere, out float sample01Intersection)
 {
     vec3 relativePosition = sampleSource.position - sampleSphere.position;
@@ -215,7 +215,7 @@ void trySphereIntersection(const in source sampleSource, const in sphere sampleS
     sample01Intersection = SENTINEL_INTERSECTION;
 }
 
-// Case 3: Return both intersections independently when they lie within the source interval; otherwise, return SENTINEL_INTERSECTION for that root.
+// Case 3: Result is two distances: entry and exit hits within the interval.
 void trySphereIntersection(const in source sampleSource, const in sphere sampleSphere, out float sample01Intersection, out float sample02Intersection)
 {
     vec3 relativePosition = sampleSource.position - sampleSphere.position;
