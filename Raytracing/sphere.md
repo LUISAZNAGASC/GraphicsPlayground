@@ -137,7 +137,83 @@ struct source { vec3 position; vec3 direction; float minimum; float maximum; };
 
 struct sphere { vec3 position; float radius; };
 
-bool trySphereIntersection(const in source sampleSource, const in sphere sampleSphere, out float sample01Intersection)
+const float SENTINEL_INTERSECTION = 3.402823466e+38;
+
+bool trySphereIntersection(const in source sampleSource, const in sphere sampleSphere)
+{
+    vec3 relativePosition = sampleSource.position - sampleSphere.position;
+    
+    float quadraticCoefficient = dot(sampleSource.direction, sampleSource.direction);
+    float linearCoefficient = 2.0 * dot(relativePosition, sampleSource.direction);
+    float constantCoefficient = dot(relativePosition, relativePosition) - sampleSphere.radius * sampleSphere.radius;
+    float quadraticDiscriminant = linearCoefficient * linearCoefficient - 4.0 * quadraticCoefficient * constantCoefficient;
+    
+    if (quadraticDiscriminant < 0.0)
+    {
+        return false;
+    }
+    
+    float discriminantRadical = sqrt(quadraticDiscriminant);
+    
+    float negativeIntersection = (-linearCoefficient - discriminantRadical) / (2.0 * quadraticCoefficient);
+    float positiveIntersection = (-linearCoefficient + discriminantRadical) / (2.0 * quadraticCoefficient);
+    float incomingIntersection = min(negativeIntersection, positiveIntersection);
+    float outgoingIntersection = max(negativeIntersection, positiveIntersection);
+    
+    if (incomingIntersection >= sampleSource.minimum && incomingIntersection <= sampleSource.maximum)
+    {
+        return true;
+    }
+    
+    if (outgoingIntersection >= sampleSource.minimum && outgoingIntersection <= sampleSource.maximum)
+    {
+        return true;
+    }
+    
+    return false;
+}
+
+void trySphereIntersection(const in source sampleSource, const in sphere sampleSphere, out float sample01Intersection)
+{
+    vec3 relativePosition = sampleSource.position - sampleSphere.position;
+    
+    float quadraticCoefficient = dot(sampleSource.direction, sampleSource.direction);
+    float linearCoefficient = 2.0 * dot(relativePosition, sampleSource.direction);
+    float constantCoefficient = dot(relativePosition, relativePosition) - sampleSphere.radius * sampleSphere.radius;
+    float quadraticDiscriminant = linearCoefficient * linearCoefficient - 4.0 * quadraticCoefficient * constantCoefficient;
+    
+    if (quadraticDiscriminant < 0.0)
+    {
+        sample01Intersection = SENTINEL_INTERSECTION;
+        
+        return;
+    }
+    
+    float discriminantRadical = sqrt(quadraticDiscriminant);
+    
+    float negativeIntersection = (-linearCoefficient - discriminantRadical) / (2.0 * quadraticCoefficient);
+    float positiveIntersection = (-linearCoefficient + discriminantRadical) / (2.0 * quadraticCoefficient);
+    float incomingIntersection = min(negativeIntersection, positiveIntersection);
+    float outgoingIntersection = max(negativeIntersection, positiveIntersection);
+    
+    if (incomingIntersection >= sampleSource.minimum && incomingIntersection <= sampleSource.maximum)
+    {
+        sample01Intersection = incomingIntersection;
+        
+        return;
+    }
+    
+    if (outgoingIntersection >= sampleSource.minimum && outgoingIntersection <= sampleSource.maximum)
+    {
+        sample01Intersection = outgoingIntersection;
+        
+        return;
+    }
+
+    sample01Intersection = SENTINEL_INTERSECTION;
+}
+
+void trySphereIntersection(const in source sampleSource, const in sphere sampleSphere, out float sample01Intersection, out float sample02Intersection)
 {
     vec3 relativePosition = sampleSource.position - sampleSphere.position;
 
@@ -145,37 +221,38 @@ bool trySphereIntersection(const in source sampleSource, const in sphere sampleS
     float linearCoefficient = 2.0 * dot(relativePosition, sampleSource.direction);
     float constantCoefficient = dot(relativePosition, relativePosition) - sampleSphere.radius * sampleSphere.radius;
     float quadraticDiscriminant = linearCoefficient * linearCoefficient - 4.0 * quadraticCoefficient * constantCoefficient;
-
+    
     if (quadraticDiscriminant < 0.0)
     {
-        sample01Intersection = sampleSource.maximum;
-
-        return false;
+        sample01Intersection = SENTINEL_INTERSECTION;
+        sample02Intersection = SENTINEL_INTERSECTION;
+        
+        return;
     }
-
+    
     float discriminantRadical = sqrt(quadraticDiscriminant);
-
+    
     float negativeIntersection = (-linearCoefficient - discriminantRadical) / (2.0 * quadraticCoefficient);
     float positiveIntersection = (-linearCoefficient + discriminantRadical) / (2.0 * quadraticCoefficient);
     float incomingIntersection = min(negativeIntersection, positiveIntersection);
     float outgoingIntersection = max(negativeIntersection, positiveIntersection);
-
+    
     if (incomingIntersection >= sampleSource.minimum && incomingIntersection <= sampleSource.maximum)
     {
-         sample01Intersection = incomingIntersection;
-
-         return true;
+        sample01Intersection = incomingIntersection;
     }
-
+    else
+    {
+        sample01Intersection = SENTINEL_INTERSECTION;
+    }
+    
     if (outgoingIntersection >= sampleSource.minimum && outgoingIntersection <= sampleSource.maximum)
     {
-        sample01Intersection = outgoingIntersection;
-
-        return true;
+        sample02Intersection = outgoingIntersection;
     }
-
-    sample01Intersection = sampleSource.maximum;
-
-    return false;
+    else
+    {
+        sample02Intersection = SENTINEL_INTERSECTION;
+    }
 }
 ```
